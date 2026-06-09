@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
-import { getDynamicBySlug, validateDynamicPassword, DynamicConfig } from "@/lib/invitations";
+import { getDynamicBySlug, validateDynamicPassword, DynamicConfig, lugaresEvangelio } from "@/lib/invitations";
 
 export default function RetiroDynamicPage() {
   const params = useParams();
@@ -13,12 +13,19 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Control de etapas de la dinámica
+  // Estados de etapas
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [videoFinished, setVideoFinished] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Estados de la Ruleta
+  const [ruletaTexto, setRuletaTexto] = useState("¿Qué lugar te tocará?");
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [ruletaTerminada, setRuletaTerminada] = useState(false);
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const consignaSectionRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (slug) {
@@ -27,10 +34,29 @@ export default function RetiroDynamicPage() {
     }
   }, [slug]);
 
+  // Efecto para apagar la música global cuando el video se empiece a reproducir
+  useEffect(() => {
+    if (isPlaying) {
+      // Buscamos cualquier etiqueta de audio global que haya iniciado la app original
+      const globalAudios = document.querySelectorAll("audio");
+      globalAudios.forEach((audio) => {
+        audio.pause();
+      });
+      
+      // Intentamos interactuar con posibles botones de mute de la app original
+      const musicButtons = document.querySelectorAll(".music-fab, button");
+      musicButtons.forEach((btn) => {
+        if (btn.textContent?.toLowerCase().includes("música") || btn.textContent?.toLowerCase().includes("music")) {
+          (btn as HTMLElement).click();
+        }
+      });
+    }
+  }, [isPlaying]);
+
   if (!dynamic) {
     return (
-      <div className="flex min-height-screen items-center justify-center p-8 bg-amber-50">
-        <p className="text-xl font-serif text-amber-950">Participante no encontrado.</p>
+      <div className="flex min-h-screen items-center justify-center p-8 bg-[#f6f1e8]">
+        <p className="text-xl font-serif text-[#2f2417]">Participante no encontrado.</p>
       </div>
     );
   }
@@ -45,34 +71,68 @@ export default function RetiroDynamicPage() {
     }
   };
 
-  // Ir a la Etapa 2 (Video) y hacer scroll suave
   const handleGoToVideo = () => {
     setCurrentStep(2);
     setTimeout(() => {
       videoSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    }, 150);
   };
 
-  // Ir a la Etapa 3 (Consigna) y hacer scroll suave
+  const handlePlayVideo = () => {
+    setIsPlaying(true);
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {
+        console.log("El navegador bloqueó el autoplay, requiere interacción directa.");
+      });
+    }
+  };
+
+  const handleVideoEnded = () => {
+    setVideoFinished(true);
+    setIsPlaying(false);
+  };
+
   const handleGoToConsigna = () => {
     setCurrentStep(3);
     setTimeout(() => {
       consignaSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    }, 150);
+    startRuleta();
   };
 
-  // Simulación para la demo o si falla la API de YouTube: botón para saltear/marcar como visto
-  const forzarVideoTerminado = () => {
-    setVideoFinished(true);
+  // Lógica de animación de la Ruleta del Evangelio
+  const startRuleta = () => {
+    setIsSpinning(true);
+    let index = 0;
+    let velocidad = 60; // milisegundos entre cambios
+    let vueltas = 0;
+
+    const interval = setInterval(() => {
+      setRuletaTexto(lugaresEvangelio[index]);
+      index = (index + 1) % lugaresEvangelio.length;
+      vueltas++;
+
+      // Simular desaceleración paulatina
+      if (vueltas > 25) {
+        clearInterval(interval);
+        // Forzar que el resultado final sea exactamente el asignado (Jerusalén)
+        setRuletaTexto(dynamic.lugarEvangelioAsignado);
+        setIsSpinning(false);
+        setRuletaTerminada(true);
+      }
+    }, velocidad);
   };
 
-  // Pantalla de Login / Contraseña
+  // 1. PANTALLA LOGIN (CELULAR FRIENDLY)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f6f1e8] px-4">
-        <div className="w-full max-w-md bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-amber-900/10 text-center">
-          <h1 className="text-2xl font-serif text-[#2f2417] mb-2">Retiro Espiritual</h1>
-          <p className="text-sm text-[#675744] mb-6 font-sans">Ingresá tu clave personal para comenzar la actividad</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f6f1e8] px-6 py-12">
+        <div className="w-full max-w-sm bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-[28px] shadow-xl border border-amber-900/10 text-center">
+          <div className="w-12 h-12 bg-[#8a6b2f]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-xl">🕊️</span>
+          </div>
+          <h1 className="text-2xl font-serif text-[#2f2417] mb-1 font-bold">Bienvenido al Retiro</h1>
+          <p className="text-xs text-[#675744] font-sans mb-6">Ingresá la clave provista por tus animadores</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <input
@@ -80,14 +140,14 @@ export default function RetiroDynamicPage() {
               placeholder="Contraseña"
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-amber-950/20 bg-white text-[#2f2417] focus:outline-none focus:ring-2 focus:ring-[#8a6b2f] text-center font-sans uppercase tracking-widest"
+              className="w-full px-4 py-3.5 rounded-xl border border-amber-950/20 bg-white text-[#2f2417] text-center font-sans uppercase tracking-widest text-lg focus:ring-2 focus:ring-[#8a6b2f] focus:outline-none transition-all"
             />
-            {errorMsg && <p className="text-sm text-red-600 font-sans">{errorMsg}</p>}
+            {errorMsg && <p className="text-xs text-red-600 font-sans font-medium">{errorMsg}</p>}
             <button
               type="submit"
-              className="w-full py-3 px-6 bg-[#8a6b2f] hover:bg-[#675744] text-white font-sans font-semibold rounded-xl transition-all shadow-md"
+              className="w-full py-3.5 px-6 bg-gradient-to-r from-[#9d7a34] to-[#7e6128] text-white font-sans font-bold rounded-xl shadow-md active:scale-95 transition-transform tracking-wider text-sm"
             >
-              INGRESAR
+              INGRESAR AL RETIRO
             </button>
           </form>
         </div>
@@ -96,15 +156,17 @@ export default function RetiroDynamicPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#efe6d5] via-[#f8f5ef] to-[#f3ede2] text-[#2f2417] font-serif pb-24 selection:bg-[#e9dcc1]">
+    <div className="min-h-screen bg-gradient-to-b from-[#efe6d5] via-[#f8f5ef] to-[#f3ede2] text-[#2f2417] font-serif pb-20 selection:bg-[#e9dcc1] overflow-x-hidden">
       
-      {/* SECCIÓN 1: BIENVENIDA */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-4 max-w-2xl mx-auto text-center">
-        <span className="text-xs tracking-[0.2em] font-sans text-[#8a6b2f] uppercase font-bold mb-3">BIENVENIDO/A</span>
-        <h1 className="text-4xl md:text-5xl font-serif mb-8 text-[#2f2417]">{dynamic.nombre}</h1>
+      {/* ETAPA 1: BIENVENIDA */}
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 max-w-xl mx-auto text-center py-8">
+        <span className="text-[10px] tracking-[0.25em] font-sans text-[#8a6b2f] uppercase font-bold mb-3 bg-[#8a6b2f]/10 px-3 py-1 rounded-full">
+          UN MOMENTO PARA VOS
+        </span>
+        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-[#2f2417] tracking-tight">{dynamic.nombre}</h1>
         
-        <div className="bg-white/60 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-amber-900/10 shadow-sm mb-10">
-          <p className="text-lg text-[#2f2417] leading-relaxed italic">
+        <div className="bg-white/70 backdrop-blur-sm p-6 md:p-8 rounded-[24px] border border-amber-900/10 shadow-md mb-8 transform transition-all">
+          <p className="text-base md:text-lg text-[#2f2417] leading-relaxed italic">
             "{dynamic.mensajeBienvenida}"
           </p>
         </div>
@@ -112,93 +174,115 @@ export default function RetiroDynamicPage() {
         {currentStep === 1 && (
           <button
             onClick={handleGoToVideo}
-            className="py-4 px-8 bg-[#8a6b2f] hover:bg-[#675744] text-white font-sans font-medium rounded-full transition-all tracking-wider shadow-lg animate-bounce"
+            className="w-full sm:w-auto py-4 px-8 bg-gradient-to-b from-[#9d7a34] to-[#7e6128] text-white font-sans font-bold rounded-full transition-all tracking-wider shadow-lg active:scale-95 hover:opacity-95 animate-pulse text-sm"
           >
-            DESCUBRIR MI MENSAJE
+            DESCUBRIR MI MENSAJE ✨
           </button>
         )}
       </section>
 
-      {/* SECCIÓN 2: EL VIDEO (Aparece o se desbloquea en el paso 2) */}
+      {/* ETAPA 2: VIDEO */}
       {currentStep >= 2 && (
         <section 
           ref={videoSectionRef}
-          className="min-h-screen flex flex-col items-center justify-center px-4 max-w-3xl mx-auto text-center py-12"
+          className="min-h-screen flex flex-col items-center justify-center px-6 max-w-xl mx-auto text-center py-10 transition-opacity duration-700"
         >
-          <h2 className="text-2xl md:text-3xl mb-6 text-[#2f2417]">Un regalo para tu corazón...</h2>
-          <p className="text-sm font-sans text-[#675744] max-w-md mb-8">
-            Personas importantes para tu vida prepararon esto. Ponete los auriculares y escuchá con atención.
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 text-[#2f2417]">Un regalo directo al corazón...</h2>
+          <p className="text-xs font-sans text-[#675744] max-w-xs mb-6 leading-relaxed">
+            Colocate los auriculares, acomodate en tu lugar y dale reproducir al video.
           </p>
 
-          {/* Contenedor del reproductor de Video de YouTube */}
-          <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80 mb-8">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${dynamic.youtubeVideoId}?autoplay=1&rel=0`}
-              title="Video personalizado"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-            ></iframe>
+          {/* Reproductor Nativo Mobile de Google Drive */}
+          <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-white mb-6 relative group">
+            <video
+              ref={videoRef}
+              src={dynamic.driveVideoUrl}
+              controls
+              playsInline
+              onPlay={handlePlayVideo}
+              onEnded={handleVideoEnded}
+              className="w-full h-full object-contain"
+            />
+            
+            {!isPlaying && !videoFinished && (
+              <button 
+                onClick={handlePlayVideo}
+                className="absolute inset-0 m-auto w-16 h-16 bg-[#8a6b2f] hover:bg-[#675744] text-white rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-90 z-10"
+              >
+                <span className="text-2xl ml-1">▶️</span>
+              </button>
+            )}
           </div>
 
-          {/* FALSO DETECTOR DE FINALIZACIÓN PARA LA DEMO */}
+          {/* SIMULADOR DE FINALIZACIÓN EN CASO DE ERROR DE ENLACE DE DRIVE */}
           {!videoFinished && (
             <div className="mb-4">
               <button 
-                onClick={forzarVideoTerminado}
-                className="text-xs font-sans text-[#8a6b2f] underline opacity-60 hover:opacity-100"
+                onClick={handleVideoEnded}
+                className="text-[11px] font-sans text-[#8a6b2f] underline opacity-40 active:opacity-100"
               >
-                [Demo: Simular que terminó el video]
+                [Simular fin del video]
               </button>
             </div>
           )}
 
-          {/* El botón de continuar SOLO aparece cuando el video termina */}
+          {/* Botón dinámico habilitado SÓLO al terminar el video */}
           {videoFinished && currentStep === 2 && (
             <button
               onClick={handleGoToConsigna}
-              className="py-4 px-8 bg-[#8a6b2f] hover:bg-[#675744] text-white font-sans font-medium rounded-full transition-all tracking-wider shadow-lg scale-up-animation"
+              className="w-full sm:w-auto py-4 px-8 bg-gradient-to-r from-[#20663a] to-[#297b46] text-white font-sans font-bold rounded-full transition-all tracking-wider shadow-lg active:scale-95 animate-bounce text-sm"
             >
-              CONTINUAR A LA ACTIVIDAD
+              DESCUBRIR MI DINÁMICA 🧭
             </button>
           )}
         </section>
       )}
 
-      {/* SECCIÓN 3: LA CONSIGNA (Paso final) */}
+      {/* ETAPA 3: LA RULETA Y CONSIGNA FINAL */}
       {currentStep === 3 && (
         <section 
           ref={consignaSectionRef}
-          className="min-h-screen flex flex-col items-center justify-center px-4 max-w-2xl mx-auto text-center py-12"
+          className="min-h-screen flex flex-col items-center justify-center px-6 max-w-xl mx-auto text-center py-8"
         >
-          <span className="text-xs tracking-[0.2em] font-sans text-[#8a6b2f] uppercase font-bold mb-3">
-            TU MODALIDAD DE TRABAJO
-          </span>
-          
-          <h2 className="text-3xl font-serif mb-6">
-            {dynamic.esIndividual ? "🙌 Dinámica Individual" : "👥 Dinámica en Pareja"}
-          </h2>
+          {/* TARJETA INTERACTIVA DE LA RULETA */}
+          <div className="w-full bg-white p-6 md:p-8 rounded-[32px] border-2 border-[#e9dcc1] shadow-xl mb-6 relative overflow-hidden">
+            <span className="text-[10px] tracking-[0.2em] font-sans text-[#675744] uppercase font-bold block mb-4">
+              {isSpinning ? "🔄 BUSCANDO TU ESPACIO..." : "📍 TU LUGAR ASIGNADO"}
+            </span>
 
-          {!dynamic.esIndividual && dynamic.companero && (
-            <p className="text-xl font-sans text-[#8a6b2f] mb-8 font-medium">
-              Tu compañero/a para este momento es: <span className="underline">{dynamic.companero}</span>
-            </p>
-          )}
+            {/* Efecto visual de Ruleta */}
+            <div className={`text-3xl md:text-4xl font-bold font-serif my-6 transition-all duration-100 ${isSpinning ? 'text-[#8a6b2f] scale-105 opacity-80' : 'text-[#20663a] scale-100'}`}>
+              {isSpinning ? `✨ ${ruletaTexto} ✨` : `⛪ ${ruletaTexto}`}
+            </div>
 
-          <div className="bg-white p-8 md:p-10 rounded-2xl border-2 border-[#e9dcc1] shadow-xl text-left">
-            <h3 className="text-xs tracking-wider font-sans text-[#675744] font-bold uppercase mb-4">
-              ¿Qué tenés que hacer ahora?
-            </h3>
-            <p className="text-base text-[#2f2417] leading-relaxed whitespace-pre-line font-serif">
-              {dynamic.actividadEspecifica}
-            </p>
+            {isSpinning && (
+              <div className="w-full bg-amber-100 h-1 rounded-full overflow-hidden">
+                <div className="bg-[#8a6b2f] h-full w-2/3 animate-infinite-scroll rounded-full"></div>
+              </div>
+            )}
           </div>
 
-          <p className="mt-12 text-sm font-sans text-[#675744] italic">
-            Que tengas un bendecido momento de encuentro.
-          </p>
+          {/* CONTENIDO REVELADO DESPUÉS DE LA RULETA */}
+          {ruletaTerminada && (
+            <div className="w-full space-y-6 animate-fade-in">
+              <div className="inline-flex py-1 px-4 bg-[#20663a]/10 rounded-full text-[#20663a] font-sans text-xs font-bold uppercase tracking-wider">
+                {dynamic.esIndividual ? "🙌 Trabajo Personal / Individual" : "👥 Trabajo Acompañado"}
+              </div>
+
+              <div className="bg-white/80 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-amber-900/10 text-left shadow-sm">
+                <h3 className="text-xs tracking-wider font-sans text-[#675744] font-bold uppercase mb-3">
+                  Consigna de la Actividad:
+                </h3>
+                <p className="text-sm md:text-base text-[#2f2417] leading-relaxed whitespace-pre-line font-serif">
+                  {dynamic.actividadEspecifica}
+                </p>
+              </div>
+
+              <p className="text-xs font-sans text-[#675744] italic pt-4">
+                "Caminante, no hay camino, se hace camino al andar." ¡Buen momento de retiro! 🕊️
+              </p>
+            </div>
+          )}
         </section>
       )}
     </div>

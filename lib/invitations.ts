@@ -143,27 +143,43 @@ export function validateInvitationPassword(slug: string, password: string) {
 // 2. NUEVA ESTRUCTURA (DINÁMICA RETIRO - DEMO)
 // ==========================================
 
+// lib/invitations.ts (Sección Final - Reemplazar la parte de la dinámica del retiro)
+
 export type DynamicConfig = {
   slug: string;
   nombre: string;
   password: string;
   mensajeBienvenida: string;
-  youtubeVideoId: string; 
+  driveVideoUrl: string; // Cambiado a URL de Google Drive
+  lugarEvangelioAsignado: string; // El lugar real que le toca
   esIndividual: boolean;
   companero?: string;
   actividadEspecifica: string;
 };
 
+// Listado de lugares del Evangelio para la ruleta interactiva
+export const lugaresEvangelio = [
+  "Pesebre de Belén",
+  "Río Jordán",
+  "Desierto de Judea",
+  "Mar de Galilea",
+  "Monte de los Olivos",
+  "Jerusalén", // El que le tocará a Mili
+  "Caná de Galilea",
+  "Pozo de Sicar"
+];
+
 export const retiroDynamics: Record<string, DynamicConfig> = {
-  'demo-tomas': {
-    slug: 'demo-tomas',
-    nombre: 'Tomás García',
+  'mili-morales': {
+    slug: 'mili-morales',
+    nombre: 'Mili Morales',
     password: 'DEMO',
-    mensajeBienvenida: '¡Qué alegría que estés acá, Tomi! Este es un momento pensado exclusivamente para vos. Te invitamos a respirar profundo, dejar de lado las corridas del día y disponer el corazón para lo que Dios tiene preparado hoy.',
-    youtubeVideoId: 'dQw4w9WgXcQ', 
-    esIndividual: false,
-    companero: 'Mateo Fernández',
-    actividadEspecifica: 'Diríjanse al sector del jardín cerca de la cruz de madera. Juntos van a leer el pasaje de Emaús que tienen en sus mochilas y van a compartir en qué momentos del año sintieron que Jesús caminaba al lado de ustedes, incluso sin darse cuenta.'
+    mensajeBienvenida: '¡Hola Mili! Qué regalo enorme es que estés compartiendo este retiro. En este momento, te invitamos a frenar el ritmo del día, respirar hondo y abrir el corazón de par en par. Dios caminó toda su vida en la tierra y hoy quiere hacer un tramo de ese viaje con vos.',
+    // URL de Google Drive (Formato optimizado para reproducción directa en la web)
+    driveVideoUrl: 'https://www.google.com/search?q=url-de-tu-video-en-drive-completamente-funcional', 
+    lugarEvangelioAsignado: 'Jerusalén',
+    esIndividual: true,
+    actividadEspecifica: 'Jesús entra en Jerusalén aclamado, pero también dispuesto a la entrega total por amor. Dirigite al sector del Sagrario de la capilla. Encontrá un momento de absoluto silencio frente a Él. Abrí la biblia en Lucas 19, 28-40, meditá en cómo estás aclamando a Jesús en tu vida hoy y qué estás dispuesta a entregarle en sus manos.'
   }
 };
 
