@@ -55,7 +55,7 @@ export default function RetiroDynamicPage() {
 
   if (!dynamic) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', p: '20px' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', padding: '20px' }}>
         <p style={{ fontSize: '18px', color: '#2f2417' }}>Participante no encontrado.</p>
       </div>
     );
@@ -128,7 +128,7 @@ export default function RetiroDynamicPage() {
   if (!isAuthenticated) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
-        <div style={{ width: '100%', maxWidth: '360px', backgroundColor: '#ffffff', borderRadius: '28px', padding: '32px 24px', boxShadow: '0 12px 40px rgba(47,36,23,0.08)', border: '1px solid rgba(138,107,47,0.1)', textCenter: 'center', textAlign: 'center', boxSizing: 'border-box' }}>
+        <div style={{ width: '100%', maxWidth: '360px', backgroundColor: '#ffffff', borderRadius: '28px', padding: '32px 24px', boxShadow: '0 12px 40px rgba(47,36,23,0.08)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
           <div style={{ fontSize: '32px', marginBottom: '12px' }}>🕊️</div>
           <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '24px', color: '#2f2417', margin: '0 0 8px 0', fontWeight: 'bold' }}>Tu Espacio de Retiro</h1>
           <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 24px 0', lineHeight: '1.4' }}>Ingresá tu contraseña para iniciar la experiencia interactiva</p>
@@ -162,7 +162,7 @@ export default function RetiroDynamicPage() {
         <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '3px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '12px', backgroundColor: 'rgba(138,107,47,0.09)', padding: '6px 16px', borderRadius: '999px' }}>
           UN MOMENTO PARA VOS
         </span>
-        <h1 style={{ fontSize: '38px', margin: '0 0 24px 0', fontWeight: 'bold', color: '#2f2417', tracking: '-0.02em' }}>{dynamic.nombre}</h1>
+        <h1 style={{ fontSize: '38px', margin: '0 0 24px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
         
         <div style={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '24px', padding: '24px', border: '1px solid rgba(138,107,47,0.12)', boxShadow: '0 10px 30px rgba(64,44,17,0.04)', marginBottom: '40px' }}>
           <p style={{ fontSize: '16px', lineHeight: '1.7', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
@@ -172,7 +172,6 @@ export default function RetiroDynamicPage() {
 
         {currentStep === 1 && (
           <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            {/* COMPONENTE INTERACTIVO: SLIDER DESLIZABLE IPHONE STYLE */}
             <div style={{ position: 'relative', width: '100%', height: '56px', backgroundColor: '#e9e2d5', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.08)' }}>
               <span style={{ fontFamily: 'sans-serif', fontSize: '12px', fontWeight: 'bold', color: '#7a6750', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider1X / 80 }}>
                 DESLIZÁ PARA CONTINUAR ➔
@@ -203,7 +202,6 @@ export default function RetiroDynamicPage() {
             Colocate los auriculares, poné el celular en pantalla completa si lo preferís, y dale play al video.
           </p>
 
-          {/* CONTENEDOR DE VIDEO MEJORADO */}
           <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '24px', border: '3px solid #ffffff' }}>
             <video
               ref={videoRef}
@@ -224,7 +222,6 @@ export default function RetiroDynamicPage() {
             </button>
           )}
 
-          {/* EL SLIDER DE CONFIGURACIÓN DE ETAPA SOLO APARECE CUANDO TERMINA EL VIDEO */}
           {videoFinished && currentStep === 2 && (
             <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '16px' }}>
               <div style={{ position: 'relative', width: '100%', height: '56px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.06)' }}>
@@ -254,7 +251,6 @@ export default function RetiroDynamicPage() {
       {currentStep === 3 && (
         <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '480px', margin: '0 auto', textAlign: 'center' }}>
           
-          {/* CONTENEDOR RULETA */}
           <div style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 20px', border: '2px solid #e9dcc1', boxShadow: '0 15px 35px rgba(64,44,17,0.08)', marginBottom: '24px', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', fontFamily: 'sans-serif', letterSpacing: '2px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
               {isSpinning ? "🔄 RECORRIENDO EL EVANGELIO..." : "📍 TU LUGAR ENCONTRADO"}
@@ -263,18 +259,11 @@ export default function RetiroDynamicPage() {
             <div style={{ fontSize: '28px', fontWeight: 'bold', color: isSpinning ? '#8a6b2f' : '#20663a', margin: '20px 0', minHeight: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {isSpinning ? `✨ ${ruletaTexto} ✨` : `⛪ ${ruletaTexto}`}
             </div>
-
-            {isSpinning && (
-              <div style={{ width: '100%', height: '4px', backgroundColor: '#f1ebd9', borderRadius: '999px', overflow: 'hidden' }}>
-                <div style={{ width: '50%', height: '100%', backgroundColor: '#8a6b2f', borderRadius: '999px', animation: 'pulse 1s infinite' }}></div>
-              </div>
-            )}
           </div>
 
-          {/* CONSIGNA TEXTUAL FINAL */}
           {ruletaTerminada && (
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.6s ease-out' }}>
-              <div style={{ display: 'inline-block', margin: '0 auto', padding: '6px 18px', backgroundColor: 'rgba(32,102,58,0.1)', color: '#20663a', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', uppercase: 'true', letterSpacing: '0.5px' }}>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'inline-block', margin: '0 auto', padding: '6px 18px', backgroundColor: 'rgba(32,102,58,0.1)', color: '#20663a', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '0.5px' }}>
                 {dynamic.esIndividual ? "🙌 TRABAJO PERSONAL / INDIVIDUAL" : "👥 DINÁMICA ACOMPAÑADA"}
               </div>
 
