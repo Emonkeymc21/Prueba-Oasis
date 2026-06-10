@@ -118,9 +118,9 @@ export default function RetiroDynamicPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 80px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 60px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
       
-      {/* INYECCIÓN DE ESTILOS CSS ANIMADOS (Para saltarnos Tailwind en producción) */}
+      {/* INYECCIÓN DE ESTILOS CSS ANIMADOS (Para evitarnos Tailwind en producción) */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes shimmer {
           0% { background-position: -200px 0; }
@@ -216,12 +216,12 @@ export default function RetiroDynamicPage() {
           {/* FASE 2: EL VIDEO COMPARTIDO DE GOOGLE DRIVE */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
-              <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', tracking: '-0.01em' }}>Un regalo para tu corazón...</h2>
+              <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
                 Ponete los auriculares, acomodate en tu lugar y dale play al video interactivo.
               </p>
 
-              {/* REPRODUCTOR EMBED OFICIAL DE GOOGLE DRIVE OPTIMIZADO PARA MÓVILES */}
+              {/* REPRODUCTOR EMBED OFICIAL DE GOOGLE DRIVE */}
               <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box' }}>
                 <iframe
                   src={`https://drive.google.com/file/d/${dynamic.driveFileId}/preview`}
@@ -232,7 +232,7 @@ export default function RetiroDynamicPage() {
                 />
               </div>
 
-              {/* ACTIVADOR ACCESIBLE DE RESPALDO (Por si ve el video entero en la app de Drive) */}
+              {/* ACTIVADOR ACCESIBLE DE RESPALDO */}
               {!videoFinished && (
                 <button 
                   onClick={() => setVideoFinished(true)} 
@@ -266,11 +266,10 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* FASE 3: LA RULETA INSPIRADA EN LOS LUGARES SANTOS Y DETALLES */}
+          {/* FASE 3: LA RULETA INSPIRADA EN LOS LUGARES SANTOS */}
           {currentStep === 3 && (
             <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
-              {/* COMPONENTE BURBUJA DE LA RULETA */}
               <div className={isSpinning ? "pulse-card" : ""} style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px 20px', border: '2px solid #e9dcc1', boxShadow: '0 15px 40px rgba(64,44,17,0.06)', marginBottom: '28px', boxSizing: 'border-box' }}>
                 <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '2px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
                   {isSpinning ? "🔄 RECORRIENDO LOS EVANGELIOS..." : "📍 LUGAR ENCONTRADO"}
@@ -281,7 +280,7 @@ export default function RetiroDynamicPage() {
                 </div>
               </div>
 
-              {/* DETALLES DE LA ACTIVIDAD FINAL */}
+              {/* DETALLES DE LA ACTIVIDAD FINAL REVELADA */}
               {ruletaTerminada && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   <div>
