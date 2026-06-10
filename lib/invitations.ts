@@ -150,21 +150,20 @@ export type DynamicConfig = {
   nombre: string;
   password: string;
   mensajeBienvenida: string;
-  driveVideoUrl: string; // Cambiado a URL de Google Drive
-  lugarEvangelioAsignado: string; // El lugar real que le toca
+  driveFileId: string; // ID directo del archivo de Google Drive
+  lugarEvangelioAsignado: string;
   esIndividual: boolean;
   companero?: string;
   actividadEspecifica: string;
 };
 
-// Listado de lugares del Evangelio para la ruleta interactiva
 export const lugaresEvangelio = [
   "Pesebre de Belén",
   "Río Jordán",
   "Desierto de Judea",
   "Mar de Galilea",
   "Monte de los Olivos",
-  "Jerusalén", // El que le tocará a Mili
+  "Jerusalén",
   "Caná de Galilea",
   "Pozo de Sicar"
 ];
@@ -174,12 +173,11 @@ export const retiroDynamics: Record<string, DynamicConfig> = {
     slug: 'mili-morales',
     nombre: 'Mili Morales',
     password: 'DEMO',
-    mensajeBienvenida: '¡Hola Mili! Qué regalo enorme es que estés compartiendo este retiro. En este momento, te invitamos a frenar el ritmo del día, respirar hondo y abrir el corazón de par en par. Dios caminó toda su vida en la tierra y hoy quiere hacer un tramo de ese viaje con vos.',
-    // URL de Google Drive (Formato optimizado para reproducción directa en la web)
-    driveVideoUrl: 'https://www.google.com/search?q=url-de-tu-video-en-drive-completamente-funcional', 
+    mensajeBienvenida: '¡Hola Mili! Qué regalo enorme es que estés compartiendo este Oasis 138. En este momento, te invitamos a frenar el ritmo, respirar hondo y abrir el corazón de par en par. Dios caminó toda su vida en la tierra y hoy quiere hacer un tramo de ese viaje con vos.',
+    driveFileId: '13n4vbUdWEjnmqeEGsmxfagPsDvOuotkq', // ID extraído de tu enlace público
     lugarEvangelioAsignado: 'Jerusalén',
     esIndividual: true,
-    actividadEspecifica: 'Jesús entra en Jerusalén aclamado, pero también dispuesto a la entrega total por amor. Dirigite al sector del Sagrario de la capilla. Encontrá un momento de absoluto silencio frente a Él. Abrí la biblia en Lucas 19, 28-40, meditá en cómo estás aclamando a Jesús en tu vida hoy y qué estás dispuesta a entregarle en sus manos.'
+    actividadEspecifica: 'Jesús entra en Jerusalén aclamado, pero también dispuesto a la entrega total por amor.\n\nDirigite al sector del Sagrario de la capilla. Encontrá un momento de absoluto silencio frente a Él.\n\nAbrí la biblia en Lucas 19, 28-40, meditá en cómo estás aclamando a Jesús en tu vida hoy y qué estás dispuesta a entregarle en sus manos.'
   }
 };
 

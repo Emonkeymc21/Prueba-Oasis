@@ -13,24 +13,21 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Control de fases
+  // Fases del recorrido
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [videoFinished, setVideoFinished] = useState(false);
 
-  // Estados de los Sliders táctiles (Deslizadores)
+  // Sliders táctiles e interactivos (0 a 100)
   const [slider1X, setSlider1X] = useState(0);
   const [slider2X, setSlider2X] = useState(0);
-  const isUnlocked1 = slider1X >= 100;
-  const isUnlocked2 = slider2X >= 100;
 
-  // Estados de la Ruleta interactiva
+  // Ruleta de los lugares santos
   const [ruletaTexto, setRuletaTexto] = useState("¿Qué lugar te tocará?");
   const [isSpinning, setIsSpinning] = useState(false);
   const [ruletaTerminada, setRuletaTerminada] = useState(false);
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const consignaSectionRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (slug) {
@@ -38,11 +35,13 @@ export default function RetiroDynamicPage() {
     }
   }, [slug]);
 
-  // Apagar música global al ingresar a la fase del video
+  // Apagar música de fondo automáticamente cuando entra a la sección de video
   useEffect(() => {
     if (currentStep === 2) {
       const globalAudios = document.querySelectorAll("audio");
-      globalAudios.forEach((audio) => audio.pause());
+      globalAudios.forEach((audio) => {
+        audio.pause();
+      });
       
       const musicButtons = document.querySelectorAll(".music-fab, button");
       musicButtons.forEach((btn) => {
@@ -71,7 +70,7 @@ export default function RetiroDynamicPage() {
     }
   };
 
-  // Manejo del deslizamiento táctil (Slider 1)
+  // Deslizador 1: Pasar al video
   const handleSlider1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value);
     if (val >= 90) {
@@ -79,16 +78,13 @@ export default function RetiroDynamicPage() {
       setCurrentStep(2);
       setTimeout(() => {
         videoSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-        if (videoRef.current) videoRef.current.play().catch(() => {});
-      }, 200);
+      }, 250);
     } else {
       setSlider1X(val);
     }
   };
 
-  const resetSlider1 = () => { if (!isUnlocked1) setSlider1X(0); };
-
-  // Manejo del deslizamiento táctil (Slider 2)
+  // Deslizador 2: Pasar a la consigna + Iniciar Ruleta
   const handleSlider2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value);
     if (val >= 90) {
@@ -96,192 +92,221 @@ export default function RetiroDynamicPage() {
       setCurrentStep(3);
       setTimeout(() => {
         consignaSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 200);
+      }, 250);
       startRuleta();
     } else {
       setSlider2X(val);
     }
   };
 
-  const resetSlider2 = () => { if (!isUnlocked2) setSlider2X(0); };
-
-  // Animación mecánica de la Ruleta de lugares
   const startRuleta = () => {
     setIsSpinning(true);
     let idx = 0;
-    let vueltas = 0;
+    let ticks = 0;
     const interval = setInterval(() => {
       setRuletaTexto(lugaresEvangelio[idx]);
       idx = (idx + 1) % lugaresEvangelio.length;
-      vueltas++;
+      ticks++;
 
-      if (vueltas > 22) {
+      if (ticks > 24) {
         clearInterval(interval);
         setRuletaTexto(dynamic.lugarEvangelioAsignado);
         setIsSpinning(false);
         setRuletaTerminada(true);
       }
-    }, 75);
+    }, 80);
   };
 
-  // PANTALLA DE LOG-IN ESTILIZADA PARA MOBILE
-  if (!isAuthenticated) {
-    return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
-        <div style={{ width: '100%', maxWidth: '360px', backgroundColor: '#ffffff', borderRadius: '28px', padding: '32px 24px', boxShadow: '0 12px 40px rgba(47,36,23,0.08)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🕊️</div>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '24px', color: '#2f2417', margin: '0 0 8px 0', fontWeight: 'bold' }}>Tu Espacio de Retiro</h1>
-          <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 24px 0', lineHeight: '1.4' }}>Ingresá tu contraseña para iniciar la experiencia interactiva</p>
-          
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <input
-              type="text"
-              placeholder="CONTRASEÑA"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              style={{ width: '100%', padding: '14px', borderRadius: '16px', border: '1px solid rgba(92,68,32,0.25)', backgroundColor: '#faf8f5', color: '#2f2417', fontSize: '16px', textAlign: 'center', letterSpacing: '2px', outline: 'none', boxSizing: 'border-box' }}
-            />
-            {errorMsg && <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#b91c1c', margin: '0', fontWeight: '500' }}>{errorMsg}</p>}
-            <button
-              type="submit"
-              style={{ width: '100%', padding: '14px', borderRadius: '16px', border: 'none', background: 'linear-gradient(180deg, #9d7a34 0%, #7e6128 100%)', color: '#ffffff', fontSize: '14px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '1px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(126,97,40,0.2)' }}
-            >
-              INGRESAR
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 60px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 80px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
       
-      {/* SECCIÓN 1: BIENVENIDA */}
-      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '480px', margin: '0 auto', textAlign: 'center' }}>
-        <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '3px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '12px', backgroundColor: 'rgba(138,107,47,0.09)', padding: '6px 16px', borderRadius: '999px' }}>
-          UN MOMENTO PARA VOS
-        </span>
-        <h1 style={{ fontSize: '38px', margin: '0 0 24px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
-        
-        <div style={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '24px', padding: '24px', border: '1px solid rgba(138,107,47,0.12)', boxShadow: '0 10px 30px rgba(64,44,17,0.04)', marginBottom: '40px' }}>
-          <p style={{ fontSize: '16px', lineHeight: '1.7', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
-            "{dynamic.mensajeBienvenida}"
-          </p>
-        </div>
+      {/* INYECCIÓN DE ESTILOS CSS ANIMADOS (Para saltarnos Tailwind en producción) */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes shimmer {
+          0% { background-position: -200px 0; }
+          100% { background-position: 200px 0; }
+        }
+        @keyframes customPulse {
+          0% { transform: scale(1); opacity: 0.9; }
+          50% { transform: scale(1.03); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.9; }
+        }
+        .shimmer-text {
+          background: linear-gradient(to right, #7a6750 20%, #2f2417 50%, #7a6750 80%);
+          background-size: 200px 100%;
+          animation: shimmer 2.5s infinite linear;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .shimmer-green-text {
+          background: linear-gradient(to right, #14532d 20%, #20663a 50%, #14532d 80%);
+          background-size: 200px 100%;
+          animation: shimmer 2.5s infinite linear;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .pulse-card {
+          animation: customPulse 2s infinite ease-in-out;
+        }
+      `}} />
 
-        {currentStep === 1 && (
-          <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            <div style={{ position: 'relative', width: '100%', height: '56px', backgroundColor: '#e9e2d5', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.08)' }}>
-              <span style={{ fontFamily: 'sans-serif', fontSize: '12px', fontWeight: 'bold', color: '#7a6750', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider1X / 80 }}>
-                DESLIZÁ PARA CONTINUAR ➔
-              </span>
+      {/* PANTALLA ACCESO (LOGIN) */}
+      {!isAuthenticated ? (
+        <div style={{ minHeight: '100vh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
+          <div style={{ width: '100%', maxWidth: '350px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '36px 24px', boxShadow: '0 15px 35px rgba(47,36,23,0.06)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
+            <div style={{ fontSize: '36px', marginBottom: '14px' }}>🌵</div>
+            <h1 style={{ fontSize: '24px', color: '#2f2417', margin: '0 0 6px 0', fontWeight: 'bold' }}>Oasis 138</h1>
+            <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>Ingresá tu clave personal para entrar en tu espacio</p>
+            
+            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input
-                type="range"
-                min="0"
-                max="100"
-                value={slider1X}
-                onChange={handleSlider1Change}
-                onTouchEnd={resetSlider1}
-                onMouseUp={resetSlider1}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 2 }}
+                type="text"
+                placeholder="CONTRASEÑA"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                style={{ width: '100%', padding: '15px', borderRadius: '18px', border: '1px solid rgba(92,68,32,0.2)', backgroundColor: '#faf8f5', color: '#2f2417', fontSize: '16px', textAlign: 'center', letterSpacing: '3px', outline: 'none', boxSizing: 'border-box', fontWeight: 'bold' }}
               />
-              <div style={{ position: 'absolute', left: `calc(${slider1X}% * 0.84 + 4px)`, width: '48px', height: '48px', backgroundColor: '#8a6b2f', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 10px rgba(0,0,0,0.2)', transition: slider1X === 0 ? 'left 0.2s ease' : 'none', pointerEvents: 'none' }}>
-                <span style={{ color: '#fff', fontSize: '16px', fontWeight: 'bold' }}>✨</span>
-              </div>
+              {errorMsg && <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#b91c1c', margin: '0', fontWeight: '500' }}>{errorMsg}</p>}
+              <button
+                type="submit"
+                style={{ width: '100%', padding: '15px', borderRadius: '18px', border: 'none', background: 'linear-gradient(180deg, #9d7a34 0%, #7e6128 100%)', color: '#ffffff', fontSize: '14px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '1px', cursor: 'pointer', boxShadow: '0 5px 15px rgba(126,97,40,0.25)' }}
+              >
+                INGRESAR
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* FASE 1: BIENVENIDA */}
+          <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+            <span style={{ fontSize: '9px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
+              RETIRO OASIS 138
+            </span>
+            <h1 style={{ fontSize: '40px', margin: '0 0 20px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
+            
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 24px', border: '1px solid rgba(138,107,47,0.12)', boxShadow: '0 10px 30px rgba(64,44,17,0.04)', marginBottom: '44px', boxSizing: 'border-box' }}>
+              <p style={{ fontSize: '16px', lineHeight: '1.7', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
+                "{dynamic.mensajeBienvenida}"
+              </p>
             </div>
-          </div>
-        )}
-      </section>
 
-      {/* SECCIÓN 2: VIDEO */}
-      {currentStep >= 2 && (
-        <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '480px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417' }}>Un regalo directo al corazón...</h2>
-          <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 24px 0', padding: '0 12px', lineHeight: '1.4' }}>
-            Colocate los auriculares, poné el celular en pantalla completa si lo preferís, y dale play al video.
-          </p>
-
-          <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '24px', border: '3px solid #ffffff' }}>
-            <video
-              ref={videoRef}
-              src={dynamic.driveVideoUrl}
-              controls
-              playsInline
-              onEnded={() => setVideoFinished(true)}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            />
-          </div>
-
-          {!videoFinished && (
-            <button 
-              onClick={() => setVideoFinished(true)} 
-              style={{ background: 'none', border: 'none', color: '#8a6b2f', fontSize: '11px', fontFamily: 'sans-serif', textDecoration: 'underline', opacity: 0.35, marginBottom: '20px' }}
-            >
-              [Simular fin del video]
-            </button>
-          )}
-
-          {videoFinished && currentStep === 2 && (
-            <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '16px' }}>
-              <div style={{ position: 'relative', width: '100%', height: '56px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.06)' }}>
-                <span style={{ fontFamily: 'sans-serif', fontSize: '12px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
-                  DESLIZÁ PARA TU CONSIGNA ➔
+            {currentStep === 1 && (
+              <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#eae3d5', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.08)' }}>
+                <span className="shimmer-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider1X / 80 }}>
+                  DESLIZÁ PARA CONTINUAR ➔
                 </span>
                 <input
                   type="range"
                   min="0"
                   max="100"
-                  value={slider2X}
-                  onChange={handleSlider2Change}
-                  onTouchEnd={resetSlider2}
-                  onMouseUp={resetSlider2}
+                  value={slider1X}
+                  onChange={handleSlider1Change}
+                  onTouchEnd={() => { if (slider1X < 90) setSlider1X(0); }}
+                  onMouseUp={() => { if (slider1X < 90) setSlider1X(0); }}
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 2 }}
                 />
-                <div style={{ position: 'absolute', left: `calc(${slider2X}% * 0.84 + 4px)`, width: '48px', height: '48px', backgroundColor: '#198754', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 10px rgba(0,0,0,0.15)', transition: slider2X === 0 ? 'left 0.2s ease' : 'none', pointerEvents: 'none' }}>
-                  <span style={{ color: '#fff', fontSize: '16px', fontWeight: 'bold' }}>🧭</span>
+                <div style={{ position: 'absolute', left: `calc(${slider1X}% * 0.82 + 5px)`, width: '48px', height: '48px', backgroundColor: '#8a6b2f', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 10px rgba(0,0,0,0.18)', transition: slider1X === 0 ? 'left 0.2s cubic-bezier(0.25, 1, 0.5, 1)' : 'none', pointerEvents: 'none' }}>
+                  <span style={{ color: '#fff', fontSize: '16px' }}>✨</span>
                 </div>
               </div>
-            </div>
-          )}
-        </section>
-      )}
+            )}
+          </section>
 
-      {/* SECCIÓN 3: LA RULETA DEL EVANGELIO Y REVELACIÓN DE LA CONSIGNA */}
-      {currentStep === 3 && (
-        <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '480px', margin: '0 auto', textAlign: 'center' }}>
-          
-          <div style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 20px', border: '2px solid #e9dcc1', boxShadow: '0 15px 35px rgba(64,44,17,0.08)', marginBottom: '24px', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'sans-serif', letterSpacing: '2px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-              {isSpinning ? "🔄 RECORRIENDO EL EVANGELIO..." : "📍 TU LUGAR ENCONTRADO"}
-            </span>
-
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: isSpinning ? '#8a6b2f' : '#20663a', margin: '20px 0', minHeight: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {isSpinning ? `✨ ${ruletaTexto} ✨` : `⛪ ${ruletaTexto}`}
-            </div>
-          </div>
-
-          {ruletaTerminada && (
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'inline-block', margin: '0 auto', padding: '6px 18px', backgroundColor: 'rgba(32,102,58,0.1)', color: '#20663a', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '0.5px' }}>
-                {dynamic.esIndividual ? "🙌 TRABAJO PERSONAL / INDIVIDUAL" : "👥 DINÁMICA ACOMPAÑADA"}
-              </div>
-
-              <div style={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '24px', padding: '24px', border: '1px solid rgba(138,107,47,0.12)', boxShadow: '0 10px 30px rgba(64,44,17,0.04)', textAlign: 'left' }}>
-                <h3 style={{ fontSize: '12px', fontFamily: 'sans-serif', letterSpacing: '1px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', margin: '0 0 12px 0' }}>
-                  ¿Qué tenés que hacer ahora?
-                </h3>
-                <p style={{ fontSize: '15px', lineHeight: '1.7', color: '#2f2417', margin: '0', whiteSpace: 'pre-line' }}>
-                  {dynamic.actividadEspecifica}
-                </p>
-              </div>
-
-              <p style={{ fontSize: '13px', fontStyle: 'italic', color: '#675744', marginTop: '16px', lineHeight: '1.5' }}>
-                "Caminante, no hay camino, se hace camino al andar." <br /> ¡Que tengas un bendecido momento! 🕊️
+          {/* FASE 2: EL VIDEO COMPARTIDO DE GOOGLE DRIVE */}
+          {currentStep >= 2 && (
+            <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', tracking: '-0.01em' }}>Un regalo para tu corazón...</h2>
+              <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
+                Ponete los auriculares, acomodate en tu lugar y dale play al video interactivo.
               </p>
-            </div>
+
+              {/* REPRODUCTOR EMBED OFICIAL DE GOOGLE DRIVE OPTIMIZADO PARA MÓVILES */}
+              <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box' }}>
+                <iframe
+                  src={`https://drive.google.com/file/d/${dynamic.driveFileId}/preview`}
+                  width="100%"
+                  height="100%"
+                  allow="autoplay"
+                  style={{ border: 'none' }}
+                />
+              </div>
+
+              {/* ACTIVADOR ACCESIBLE DE RESPALDO (Por si ve el video entero en la app de Drive) */}
+              {!videoFinished && (
+                <button 
+                  onClick={() => setVideoFinished(true)} 
+                  style={{ background: 'rgba(138,107,47,0.06)', border: '1px solid rgba(138,107,47,0.2)', padding: '10px 18px', borderRadius: '999px', color: '#8a6b2f', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', marginBottom: '20px' }}
+                >
+                  Ya terminé de ver el video ✓
+                </button>
+              )}
+
+              {/* SEGUNDO SLIDER: REVELA LA CONSIGNA */}
+              {videoFinished && currentStep === 2 && (
+                <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)', marginTop: '12px' }}>
+                  <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
+                    DESLIZÁ PARA LA CONSIGNA ➔
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={slider2X}
+                    onChange={handleSlider2Change}
+                    onTouchEnd={() => { if (slider2X < 90) setSlider2X(0); }}
+                    onMouseUp={() => { if (slider2X < 90) setSlider2X(0); }}
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 2 }}
+                  />
+                  <div style={{ position: 'absolute', left: `calc(${slider2X}% * 0.82 + 5px)`, width: '48px', height: '48px', backgroundColor: '#198754', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 10px rgba(0,0,0,0.15)', transition: slider2X === 0 ? 'left 0.2s cubic-bezier(0.25, 1, 0.5, 1)' : 'none', pointerEvents: 'none' }}>
+                    <span style={{ color: '#fff', fontSize: '16px' }}>🧭</span>
+                  </div>
+                </div>
+              )}
+            </section>
           )}
-        </section>
+
+          {/* FASE 3: LA RULETA INSPIRADA EN LOS LUGARES SANTOS Y DETALLES */}
+          {currentStep === 3 && (
+            <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+              
+              {/* COMPONENTE BURBUJA DE LA RULETA */}
+              <div className={isSpinning ? "pulse-card" : ""} style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px 20px', border: '2px solid #e9dcc1', boxShadow: '0 15px 40px rgba(64,44,17,0.06)', marginBottom: '28px', boxSizing: 'border-box' }}>
+                <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '2px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                  {isSpinning ? "🔄 RECORRIENDO LOS EVANGELIOS..." : "📍 LUGAR ENCONTRADO"}
+                </span>
+
+                <div style={{ fontSize: '30px', fontWeight: 'bold', color: isSpinning ? '#8a6b2f' : '#20663a', margin: '24px 0', minHeight: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '-0.01em' }}>
+                  {isSpinning ? `✨ ${ruletaTexto} ✨` : `⛪ ${ruletaTexto}`}
+                </div>
+              </div>
+
+              {/* DETALLES DE LA ACTIVIDAD FINAL */}
+              {ruletaTerminada && (
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                  <div>
+                    <span style={{ display: 'inline-block', padding: '6px 18px', backgroundColor: 'rgba(32,102,58,0.08)', color: '#20663a', borderRadius: '999px', fontSize: '11px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                      {dynamic.esIndividual ? "🙌 TRABAJO INDIVIDUAL" : "👥 EN PAREJA"}
+                    </span>
+                  </div>
+
+                  <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', textAlign: 'left', boxSizing: 'border-box' }}>
+                    <h3 style={{ fontSize: '11px', fontFamily: 'sans-serif', letterSpacing: '1px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', margin: '0 0 14px 0' }}>
+                      ¿Cuál es tu consigna?
+                    </h3>
+                    <p style={{ fontSize: '15px', lineHeight: '1.7', color: '#2f2417', margin: '0', whiteSpace: 'pre-line' }}>
+                      {dynamic.actividadEspecifica}
+                    </p>
+                  </div>
+
+                  <p style={{ fontSize: '13px', fontStyle: 'italic', color: '#675744', marginTop: '16px', lineHeight: '1.5' }}>
+                    Que tengas un hermoso y bendecido Oasis. 🕊️
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+        </>
       )}
     </div>
   );
