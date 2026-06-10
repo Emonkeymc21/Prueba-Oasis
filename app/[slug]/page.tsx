@@ -7,7 +7,7 @@ import { getDynamicBySlug, validateDynamicPassword, DynamicConfig, lugaresEvange
 declare global {
   interface Window {
     onYouTubeIframeAPIReady?: () => void;
-    YT?: any; // Corregido con el modificador opcional (?) para evitar conflictos en Netlify
+    YT?: any;
   }
 }
 
@@ -40,7 +40,6 @@ export default function RetiroDynamicPage() {
     }
   }, [slug]);
 
-  // Cargar dinámicamente la API de YouTube para escuchar el estado del video
   useEffect(() => {
     if (currentStep === 2 && dynamic && !window.YT) {
       const tag = document.createElement("script");
@@ -67,7 +66,6 @@ export default function RetiroDynamicPage() {
     playerRef.current = new window.YT.Player("player-iframe", {
       events: {
         onStateChange: (event: any) => {
-          // El estado ENDED de la API de YouTube significa que el video terminó
           if (event.data === window.YT.PlayerState.ENDED) {
             setVideoFinished(true);
           }
@@ -210,8 +208,8 @@ export default function RetiroDynamicPage() {
               <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
-            <span style={{ fontSize: '9px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
-              ROL: ASISTENTE
+            <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
+              Asistente
             </span>
             <h1 style={{ fontSize: '40px', margin: '0 0 20px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
             
@@ -224,7 +222,7 @@ export default function RetiroDynamicPage() {
             {currentStep === 1 && (
               <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#eae3d5', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.08)' }}>
                 <span className="shimmer-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider1X / 80 }}>
-                  DESLIZÁ PARA CONTINUAR ➔
+                  DESLIZÁ PARA SABER ➔
                 </span>
                 <input
                   type="range"
@@ -243,7 +241,7 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: VIDEO ANTI-TRAMPA */}
+          {/* FASE 2: VIDEO */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
@@ -262,7 +260,6 @@ export default function RetiroDynamicPage() {
                 </div>
               </div>
 
-              {/* BOTÓN DE RESPALDO SIMULADOR PARA DESARROLLO */}
               {!videoFinished && (
                 <button 
                   onClick={() => setVideoFinished(true)} 
@@ -272,7 +269,6 @@ export default function RetiroDynamicPage() {
                 </button>
               )}
 
-              {/* EL SLIDER APARECE AL FINALIZAR EL RECORRIDO DEL VIDEO */}
               {videoFinished && currentStep === 2 && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
                   <p style={{ fontFamily: 'sans-serif', fontSize: '14px', color: '#14532d', fontWeight: 'bold', marginBottom: '14px' }}>
@@ -281,7 +277,7 @@ export default function RetiroDynamicPage() {
                   
                   <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)' }}>
                     <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
-                      DESLIZÁ PARA LA CONSIGNA ➔
+                      DESLIZÁ PARA SABER ➔
                     </span>
                     <input
                       type="range"
@@ -302,13 +298,13 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* FASE 3: LA RULETA */}
+          {/* FASE 3: LA RULETA Y CONSIGNA */}
           {currentStep === 3 && (
             <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
               <div className={isSpinning ? "pulse-card" : ""} style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px 20px', border: '2px solid #e9dcc1', boxShadow: '0 15px 40px rgba(64,44,17,0.06)', marginBottom: '28px', boxSizing: 'border-box' }}>
                 <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '2px', color: '#675744', fontWeight: 'bold', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
-                  {isSpinning ? "🔄 RECORRIENDO LOS EVANGELIOS..." : "📍 LUGAR ENCONTRADO"}
+                  {isSpinning ? "🔄 RECORRIENDO LOS EVANGELIOS..." : "📍 DINÁMICA ENCONTRADA"}
                 </span>
 
                 <div style={{ fontSize: '30px', fontWeight: 'bold', color: isSpinning ? '#8a6b2f' : '#20663a', margin: '24px 0', minHeight: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '-0.01em' }}>
@@ -320,7 +316,7 @@ export default function RetiroDynamicPage() {
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   <div>
                     <span style={{ display: 'inline-block', padding: '6px 18px', backgroundColor: 'rgba(32,102,58,0.08)', color: '#20663a', borderRadius: '999px', fontSize: '11px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                      {dynamic.esIndividual ? "🙌 TRABAJO INDIVIDUAL" : "👥 EN PAREJA"}
+                      {dynamic.esIndividual ? "🙌 Vas a estar a cargo vos de la dinámica" : "👥 EN PAREJA"}
                     </span>
                   </div>
 
