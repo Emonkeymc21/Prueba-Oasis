@@ -7,7 +7,7 @@ import { getDynamicBySlug, validateDynamicPassword, DynamicConfig, lugaresEvange
 declare global {
   interface Window {
     onYouTubeIframeAPIReady?: () => void;
-    YT: any;
+    YT?: any; // Corregido con el modificador opcional (?) para evitar conflictos en Netlify
   }
 }
 
@@ -62,12 +62,12 @@ export default function RetiroDynamicPage() {
   }, [currentStep, dynamic]);
 
   const initPlayer = () => {
-    if (!dynamic || playerRef.current) return;
+    if (!dynamic || playerRef.current || !window.YT) return;
     
     playerRef.current = new window.YT.Player("player-iframe", {
       events: {
         onStateChange: (event: any) => {
-          // El estado 0 de la API de YouTube significa "ENDED" (Video Terminado)
+          // El estado ENDED de la API de YouTube significa que el video terminó
           if (event.data === window.YT.PlayerState.ENDED) {
             setVideoFinished(true);
           }
@@ -243,7 +243,7 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: VIDEO CON BLOQUEO AUTOMÁTICO ANTI-TRAMPA */}
+          {/* FASE 2: VIDEO ANTI-TRAMPA */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
@@ -251,7 +251,6 @@ export default function RetiroDynamicPage() {
                 Ponete los auriculares y disfrutá de este mensaje. El próximo paso aparecerá de forma automática cuando el video finalice.
               </p>
 
-              {/* CONTENEDOR 9:16 ENMASCARADO CON ZOOM */}
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                   <iframe
@@ -263,7 +262,7 @@ export default function RetiroDynamicPage() {
                 </div>
               </div>
 
-              {/* BOTÓN DE RESPALDO SIMULADOR (SÓLO PARA PRUEBAS, ELIMINAR ANTES DE ENVIAR A LOS ASISTENTES) */}
+              {/* BOTÓN DE RESPALDO SIMULADOR PARA DESARROLLO */}
               {!videoFinished && (
                 <button 
                   onClick={() => setVideoFinished(true)} 
@@ -273,7 +272,7 @@ export default function RetiroDynamicPage() {
                 </button>
               )}
 
-              {/* EL SLIDER SÓLO APARECE CUANDO EL VIDEO LLEGA AL FINAL */}
+              {/* EL SLIDER APARECE AL FINALIZAR EL RECORRIDO DEL VIDEO */}
               {videoFinished && currentStep === 2 && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
                   <p style={{ fontFamily: 'sans-serif', fontSize: '14px', color: '#14532d', fontWeight: 'bold', marginBottom: '14px' }}>
@@ -303,7 +302,7 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* FASE 3: LA RULETA Y EL LUGAR SANTO */}
+          {/* FASE 3: LA RULETA */}
           {currentStep === 3 && (
             <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
