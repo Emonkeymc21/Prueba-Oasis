@@ -150,10 +150,9 @@ export default function RetiroDynamicPage() {
         <div style={{ minHeight: '100vh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
           <div style={{ width: '100%', maxWidth: '350px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '36px 24px', boxShadow: '0 15px 35px rgba(47,36,23,0.06)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
             
-            {/* CABECERA CON LOGOS EN LOGIN */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-              <img src="/image_ffc137.png" alt="Logo Oasis" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
-              <img src="/image_ffc0b6.png" alt="Logo Peregrinos" style={{ height: '45px', width: 'auto', objectFit: 'contain' }} />
+            {/* UN SOLO LOGO UNIFICADO */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+              <img src="/image_ff6643.png" alt="Logo Oasis Peregrinos" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
             <h1 style={{ fontSize: '24px', color: '#2f2417', margin: '0 0 6px 0', fontWeight: 'bold' }}>Oasis 138</h1>
@@ -182,10 +181,9 @@ export default function RetiroDynamicPage() {
           {/* FASE 1: BIENVENIDA */}
           <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
             
-            {/* LOGOS TOP BIENVENIDA */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-              <img src="/image_ffc137.png" alt="Logo Oasis" style={{ height: '65px', width: 'auto', objectFit: 'contain' }} />
-              <img src="/image_ffc0b6.png" alt="Logo Peregrinos" style={{ height: '55px', width: 'auto', objectFit: 'contain' }} />
+            {/* UN SOLO LOGO UNIFICADO EN BIENVENIDA */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+              <img src="/image_ff6643.png" alt="Logo Oasis Peregrinos" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
             <span style={{ fontSize: '9px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
@@ -221,23 +219,21 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: EL VIDEO COMODO EN MOBILE */}
+          {/* FASE 2: EL VIDEO SEGURO MOBILE */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares, dale play al video. Podés usar el botón del reproductor para verlo en pantalla completa.
+                Ponete los auriculares y dale play al reproductor. Podés maximizarlo para verlo a pantalla completa en tu celular.
               </p>
 
-              {/* REPRODUCTOR NATIVO ADAPTATIVO CON LINK DIRECTO */}
-              <div style={{ width: '100%', maxWidth: '100%', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', display: 'flex', alignItems: 'center' }}>
-                <video
-                  src={`https://docs.google.com/uc?export=download&id=${dynamic.driveFileId}`}
-                  controls
-                  playsInline
-                  controlsList="nodownload"
-                  onEnded={() => setVideoFinished(true)}
-                  style={{ width: '100%', height: 'auto', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}
+              {/* REPRODUCTOR DE ALTA COMPATIBILIDAD CON FILTRO DE CONTENEDOR SEGURO */}
+              <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
+                <iframe
+                  src={`https://drive.google.com/file/d/${dynamic.driveFileId}/preview`}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                  allow="autoplay; fullscreen"
+                  scrolling="no"
                 />
               </div>
 
