@@ -213,22 +213,26 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: DETECTOR Y CONTAINER VERTICAL 9:16 EN CELULAR CORREGIDO */}
+          {/* FASE 2: VIDEO CON EFECTO MÁSCARA PARA ENMASCARAR LA BARRA DE TÍTULO */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares y disfrutá de este mensaje vertical. Cuando termine, presioná el botón de abajo.
+                Ponete los auriculares y disfrutá de este mensaje. Cuando termine, deslizá el control de abajo.
               </p>
 
-              {/* CONTENEDOR 9:16 ENLAZADO CON YOUTUBEID CORRECTAMENTE */}
+              {/* CONTENEDOR MÁSCARA EXTERNO CON OVERFLOW HIDDEN */}
               <div style={{ width: '100%', maxWidth: '310px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
-                <iframe
-                  src={`https://www.youtube.com/embed/${dynamic.youtubeId}?rel=0&modestbranding=1&showinfo=0&autoplay=1`}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+                
+                {/* CONTENEDOR INTERNO QUE PRESIONA LA BARRA DE YOUTUBE HACIA AFUERA */}
+                <div style={{ position: 'absolute', top: '-45px', left: 0, width: '100%', height: 'calc(100% + 45px)' }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${dynamic.youtubeId}?rel=0&modestbranding=1&controls=1&showinfo=0&iv_load_policy=3&autoplay=1`}
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
               </div>
 
               {!videoFinished && (
