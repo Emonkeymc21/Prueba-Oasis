@@ -4,6 +4,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { getDynamicBySlug, validateDynamicPassword, DynamicConfig, lugaresEvangelio } from "@/lib/invitations";
 
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady?: () => void;
+    YT: any;
+  }
+}
+
 export default function RetiroDynamicPage() {
   const params = useParams();
   const slug = params?.slug as string;
@@ -25,6 +32,7 @@ export default function RetiroDynamicPage() {
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const consignaSectionRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
 
   useEffect(() => {
     if (slug) {
@@ -32,19 +40,41 @@ export default function RetiroDynamicPage() {
     }
   }, [slug]);
 
+  // Cargar dinámicamente la API de YouTube para escuchar el estado del video
   useEffect(() => {
+    if (currentStep === 2 && dynamic && !window.YT) {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+      window.onYouTubeIframeAPIReady = () => {
+        initPlayer();
+      };
+    } else if (currentStep === 2 && dynamic && window.YT) {
+      initPlayer();
+    }
+
     if (currentStep === 2) {
       const globalAudios = document.querySelectorAll("audio");
       globalAudios.forEach((audio) => audio.pause());
-      
-      const musicButtons = document.querySelectorAll(".music-fab, button");
-      musicButtons.forEach((btn) => {
-        if (btn.textContent?.toLowerCase().includes("mú") || btn.textContent?.toLowerCase().includes("mus")) {
-          (btn as HTMLElement).click();
-        }
-      });
     }
-  }, [currentStep]);
+  }, [currentStep, dynamic]);
+
+  const initPlayer = () => {
+    if (!dynamic || playerRef.current) return;
+    
+    playerRef.current = new window.YT.Player("player-iframe", {
+      events: {
+        onStateChange: (event: any) => {
+          // El estado 0 de la API de YouTube significa "ENDED" (Video Terminado)
+          if (event.data === window.YT.PlayerState.ENDED) {
+            setVideoFinished(true);
+          }
+        },
+      },
+    });
+  };
 
   if (!dynamic) {
     return (
@@ -181,7 +211,7 @@ export default function RetiroDynamicPage() {
             </div>
 
             <span style={{ fontSize: '9px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
-              RETIRO OASIS 138
+              ROL: ASISTENTE
             </span>
             <h1 style={{ fontSize: '40px', margin: '0 0 20px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
             
@@ -213,61 +243,67 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: VIDEO CON ZOOM DE ENMASCARADO AVANZADO */}
+          {/* FASE 2: VIDEO CON BLOQUEO AUTOMÁTICO ANTI-TRAMPA */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares y disfrutá de este mensaje. Al finalizar, deslizá el control de abajo.
+                Ponete los auriculares y disfrutá de este mensaje. El próximo paso aparecerá de forma automática cuando el video finalice.
               </p>
 
-              {/* MARCO CONTENEDOR EXTERNO (Filtra y recorta los bordes con overflow hidden) */}
-              <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
-                
-                {/* CAPA DE ZOOM: Agrandamos e inclinamos el iFrame para que el título vuele hacia afuera */}
+              {/* CONTENEDOR 9:16 ENMASCARADO CON ZOOM */}
+              <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                   <iframe
-                    src={`https://www.youtube.com/embed/${dynamic.youtubeId}?rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1&disablekb=1`}
+                    id="player-iframe"
+                    src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1`}
                     style={{ width: '100%', height: '100%', border: 'none' }}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   />
                 </div>
               </div>
 
+              {/* BOTÓN DE RESPALDO SIMULADOR (SÓLO PARA PRUEBAS, ELIMINAR ANTES DE ENVIAR A LOS ASISTENTES) */}
               {!videoFinished && (
                 <button 
                   onClick={() => setVideoFinished(true)} 
-                  style={{ background: 'rgba(138,107,47,0.06)', border: '1px solid rgba(138,107,47,0.2)', padding: '12px 22px', borderRadius: '999px', color: '#8a6b2f', fontSize: '13px', fontFamily: 'sans-serif', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', marginBottom: '20px' }}
+                  style={{ background: 'none', border: 'none', color: '#8a6b2f', fontSize: '11px', fontFamily: 'sans-serif', textDecoration: 'underline', opacity: 0.3, marginBottom: '20px' }}
                 >
-                  Ya terminé de ver el video ✓
+                  [Demo: Simular que el video terminó]
                 </button>
               )}
 
-              {/* DESLIZADOR 2 */}
+              {/* EL SLIDER SÓLO APARECE CUANDO EL VIDEO LLEGA AL FINAL */}
               {videoFinished && currentStep === 2 && (
-                <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)', marginTop: '12px' }}>
-                  <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
-                    DESLIZÁ PARA LA CONSIGNA ➔
-                  </span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={slider2X}
-                    onChange={handleSlider2Change}
-                    onTouchEnd={() => { if (slider2X < 90) setSlider2X(0); }}
-                    onMouseUp={() => { if (slider2X < 90) setSlider2X(0); }}
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 2 }}
-                  />
-                  <div style={{ position: 'absolute', left: `calc(${slider2X}% * 0.82 + 5px)`, width: '48px', height: '48px', backgroundColor: '#198754', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 10px rgba(0,0,0,0.15)', transition: slider2X === 0 ? 'left 0.2s cubic-bezier(0.25, 1, 0.5, 1)' : 'none', pointerEvents: 'none' }}>
-                    <span style={{ color: '#fff', fontSize: '16px' }}>🧭</span>
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
+                  <p style={{ fontFamily: 'sans-serif', fontSize: '14px', color: '#14532d', fontWeight: 'bold', marginBottom: '14px' }}>
+                    ¡Es momento de que veas la dinámica que te va a tocar!
+                  </p>
+                  
+                  <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)' }}>
+                    <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
+                      DESLIZÁ PARA LA CONSIGNA ➔
+                    </span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={slider2X}
+                      onChange={handleSlider2Change}
+                      onTouchEnd={() => { if (slider2X < 90) setSlider2X(0); }}
+                      onMouseUp={() => { if (slider2X < 90) setSlider2X(0); }}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 2 }}
+                    />
+                    <div style={{ position: 'absolute', left: `calc(${slider2X}% * 0.82 + 5px)`, width: '48px', height: '48px', backgroundColor: '#198754', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 10px rgba(0,0,0,0.15)', transition: slider2X === 0 ? 'left 0.2s cubic-bezier(0.25, 1, 0.5, 1)' : 'none', pointerEvents: 'none' }}>
+                      <span style={{ color: '#fff', fontSize: '16px' }}>🧭</span>
+                    </div>
                   </div>
                 </div>
               )}
             </section>
           )}
 
-          {/* FASE 3: LA RULETA */}
+          {/* FASE 3: LA RULETA Y EL LUGAR SANTO */}
           {currentStep === 3 && (
             <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
