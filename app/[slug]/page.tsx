@@ -213,33 +213,34 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: EL VIDEO COMODO EN MOBILE CON IFRAME EMBEBIDO CONTROLADO */}
+          {/* FASE 2: DETECTOR Y CONTAINER VERTICAL 9:16 EN CELULAR CORREGIDO */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares y disfrutá el video. Cuando termine, presioná el botón de abajo.
+                Ponete los auriculares y disfrutá de este mensaje vertical. Cuando termine, presioná el botón de abajo.
               </p>
 
-              {/* CONTENEDOR BOX ULTRA ADAPTATIVO SIN RECORES */}
-              <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
+              {/* CONTENEDOR 9:16 ENLAZADO CON YOUTUBEID CORRECTAMENTE */}
+              <div style={{ width: '100%', maxWidth: '310px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 <iframe
-                  src={`https://drive.google.com/file/d/${dynamic.driveFileId}/preview`}
+                  src={`https://www.youtube.com/embed/${dynamic.youtubeId}?rel=0&modestbranding=1&showinfo=0&autoplay=1`}
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allow="autoplay; fullscreen"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
                 />
               </div>
 
               {!videoFinished && (
                 <button 
                   onClick={() => setVideoFinished(true)} 
-                  style={{ background: 'rgba(138,107,47,0.06)', border: '1px solid rgba(138,107,47,0.2)', padding: '12px 22px', borderRadius: '999px', color: '#8a6b2f', fontSize: '13px', fontFamily: 'sans-serif', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', marginBottom: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}
+                  style={{ background: 'rgba(138,107,47,0.06)', border: '1px solid rgba(138,107,47,0.2)', padding: '12px 22px', borderRadius: '999px', color: '#8a6b2f', fontSize: '13px', fontFamily: 'sans-serif', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', marginBottom: '20px' }}
                 >
                   Ya terminé de ver el video ✓
                 </button>
               )}
 
-              {/* DESLIZADOR DE CONSIGNAS */}
+              {/* DESLIZADOR 2 */}
               {videoFinished && currentStep === 2 && (
                 <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)', marginTop: '12px' }}>
                   <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
