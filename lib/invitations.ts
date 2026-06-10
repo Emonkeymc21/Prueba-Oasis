@@ -143,14 +143,14 @@ export function validateInvitationPassword(slug: string, password: string) {
 // 2. NUEVA ESTRUCTURA (DINÁMICA RETIRO - DEMO)
 // ==========================================
 
-// lib/invitations.ts (Sección Final - Reemplazar la parte de la dinámica del retiro)
+// lib/invitations.ts (Sección Final - Dinámica del retiro)
 
 export type DynamicConfig = {
   slug: string;
   nombre: string;
   password: string;
   mensajeBienvenida: string;
-  driveFileId: string; // ID directo del archivo de Google Drive
+  videoLocalPath: string; // Cambiado a ruta local del archivo
   lugarEvangelioAsignado: string;
   esIndividual: boolean;
   companero?: string;
@@ -174,7 +174,7 @@ export const retiroDynamics: Record<string, DynamicConfig> = {
     nombre: 'Mili Morales',
     password: 'DEMO',
     mensajeBienvenida: '¡Hola Mili! Qué regalo enorme es que estés compartiendo este Oasis 138. En este momento, te invitamos a frenar el ritmo, respirar hondo y abrir el corazón de par en par. Dios caminó toda su vida en la tierra y hoy quiere hacer un tramo de ese viaje con vos.',
-    driveFileId: '13n4vbUdWEjnmqeEGsmxfagPsDvOuotkq', // ID extraído de tu enlace público
+    videoLocalPath: '/videos/mili-morales.mp4', // Apunta directo a public/videos/mili-morales.mp4
     lugarEvangelioAsignado: 'Jerusalén',
     esIndividual: true,
     actividadEspecifica: 'Jesús entra en Jerusalén aclamado, pero también dispuesto a la entrega total por amor.\n\nDirigite al sector del Sagrario de la capilla. Encontrá un momento de absoluto silencio frente a Él.\n\nAbrí la biblia en Lucas 19, 28-40, meditá en cómo estás aclamando a Jesús en tu vida hoy y qué estás dispuesta a entregarle en sus manos.'

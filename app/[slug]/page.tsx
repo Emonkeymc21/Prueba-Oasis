@@ -13,15 +13,12 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Fases del recorrido
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [videoFinished, setVideoFinished] = useState(false);
 
-  // Sliders táctiles e interactivos (0 a 100)
   const [slider1X, setSlider1X] = useState(0);
   const [slider2X, setSlider2X] = useState(0);
 
-  // Ruleta de los lugares santos
   const [ruletaTexto, setRuletaTexto] = useState("¿Qué lugar te tocará?");
   const [isSpinning, setIsSpinning] = useState(false);
   const [ruletaTerminada, setRuletaTerminada] = useState(false);
@@ -35,7 +32,6 @@ export default function RetiroDynamicPage() {
     }
   }, [slug]);
 
-  // Silenciar música global al entrar a la sección de video
   useEffect(() => {
     if (currentStep === 2) {
       const globalAudios = document.querySelectorAll("audio");
@@ -145,14 +141,13 @@ export default function RetiroDynamicPage() {
         }
       `}} />
 
-      {/* LOGIN DE ACCESO */}
+      {/* LOGIN */}
       {!isAuthenticated ? (
         <div style={{ minHeight: '100vh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
           <div style={{ width: '100%', maxWidth: '350px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '36px 24px', boxShadow: '0 15px 35px rgba(47,36,23,0.06)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
             
-            {/* UN SOLO LOGO UNIFICADO */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-              <img src="/image_ff6643.png" alt="Logo Oasis Peregrinos" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
             <h1 style={{ fontSize: '24px', color: '#2f2417', margin: '0 0 6px 0', fontWeight: 'bold' }}>Oasis 138</h1>
@@ -178,12 +173,11 @@ export default function RetiroDynamicPage() {
         </div>
       ) : (
         <>
-          {/* FASE 1: BIENVENIDA */}
+          {/* BIENVENIDA */}
           <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
             
-            {/* UN SOLO LOGO UNIFICADO EN BIENVENIDA */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-              <img src="/image_ff6643.png" alt="Logo Oasis Peregrinos" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
             <span style={{ fontSize: '9px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
@@ -219,21 +213,23 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: EL VIDEO SEGURO MOBILE */}
+          {/* VIDEO NATIVO HTML5 LIMPIO */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares y dale play al reproductor. Podés maximizarlo para verlo a pantalla completa en tu celular.
+                Ponete los auriculares y dale play. El video se adaptará automáticamente a tu pantalla vertical sin cortes.
               </p>
 
-              {/* REPRODUCTOR DE ALTA COMPATIBILIDAD CON FILTRO DE CONTENEDOR SEGURO */}
-              <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
-                <iframe
-                  src={`https://drive.google.com/file/d/${dynamic.driveFileId}/preview`}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allow="autoplay; fullscreen"
-                  scrolling="no"
+              {/* CONTENEDOR FLUIDO NATIVO DE ALTA PERFORMANCE */}
+              <div style={{ width: '100%', backgroundColor: '#000000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.15)', marginBottom: '24px', border: '4px solid #ffffff', boxSizing: 'border-box' }}>
+                <video
+                  src={dynamic.videoLocalPath}
+                  controls
+                  playsInline
+                  controlsList="nodownload"
+                  onEnded={() => setVideoFinished(true)}
+                  style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
                 />
               </div>
 
@@ -246,7 +242,7 @@ export default function RetiroDynamicPage() {
                 </button>
               )}
 
-              {/* DESLIZADOR DE CONSIGNAS */}
+              {/* DESLIZADOR 2 */}
               {videoFinished && currentStep === 2 && (
                 <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)', marginTop: '12px' }}>
                   <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
@@ -270,7 +266,7 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* FASE 3: LA RULETA */}
+          {/* RULETA */}
           {currentStep === 3 && (
             <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
