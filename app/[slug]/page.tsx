@@ -201,49 +201,21 @@ export default function RetiroDynamicPage() {
         </div>
       ) : (
         <>
-          {/* FASE 1: BIENVENIDA + INTRODUCCIÓN EMOCIONAL */}
+          {/* FASE 1: BIENVENIDA CON LA NUEVA INTRODUCCIÓN INTEGRADA EN LA TARJETA */}
           <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
             
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
               <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
-            <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '14px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
+            <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
               Asistente
             </span>
-            <h1 style={{ fontSize: '40px', margin: '0 0 16px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
+            <h1 style={{ fontSize: '40px', margin: '0 0 20px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
             
-            <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '24px 20px', border: '1px solid rgba(138,107,47,0.12)', boxShadow: '0 10px 30px rgba(64,44,17,0.04)', marginBottom: '24px', boxSizing: 'border-box' }}>
-              <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
-                "{dynamic.mensajeBienvenida}"
-              </p>
-            </div>
-
-            {/* TEXTO DE PREPARACIÓN DE CORAZÓN INTEGRADO AQUÍ ANTES DEL DESLIZADOR */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '36px', padding: '0 8px' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#8a6b2f', margin: '0', letterSpacing: '-0.01em' }}>
-                Ya falta muy poco.
-              </h2>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#3a2e2b', margin: '0' }}>
-                Durante este tiempo te preparaste, rezaste, compartiste, te animaste a decir que sí y a confiar una vez más en Jesús.
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#3a2e2b', margin: '0' }}>
-                Quizás hoy tengas expectativas, emociones, nervios o incluso algunas dudas. Y está bien.
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#2f2417', margin: '2px 0', fontWeight: 'bold' }}>
-                Porque Dios no llama personas perfectas. Llama corazones dispuestos.
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#3a2e2b', margin: '0' }}>
-                Y si llegaste hasta acá, es porque Él sigue confiando en vos.
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#3a2e2b', margin: '0' }}>
-                Antes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#3a2e2b', margin: '0' }}>
-                Hay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#8a6b2f', margin: '2px 0', fontWeight: 'bold' }}>
-                Tomate unos minutos para recibir este regalo. ❤️
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 24px', border: '1px solid rgba(138,107,47,0.12)', boxShadow: '0 10px 30px rgba(64,44,17,0.04)', marginBottom: '44px', boxSizing: 'border-box', textAlign: 'left' }}>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: '#3a2e2b', margin: '0', fontStyle: 'italic', whiteSpace: 'pre-line' }}>
+                {dynamic.mensajeBienvenida}
               </p>
             </div>
 
@@ -269,7 +241,7 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: EL VIDEO COMPACTO */}
+          {/* FASE 2: EL VIDEO COMPACTO DIRECTO */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
@@ -277,7 +249,6 @@ export default function RetiroDynamicPage() {
                 Ponete los auriculares y disfrutá de este mensaje. El próximo paso aparecerá de forma automática cuando el video finalice.
               </p>
 
-              {/* CONTENEDOR 9:16 ENMASCARADO CON ZOOM */}
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                   <iframe
@@ -298,7 +269,6 @@ export default function RetiroDynamicPage() {
                 </button>
               )}
 
-              {/* EL SLIDER DE CONSIGNAS SE DESBLOQUEA AL ACABAR EL SHORT */}
               {videoFinished && currentStep === 2 && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
                   <p style={{ fontFamily: 'sans-serif', fontSize: '14px', color: '#14532d', fontWeight: 'bold', marginBottom: '14px' }}>
@@ -328,7 +298,7 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* FASE 3: LA RULETA */}
+          {/* FASE 3: LA RULETA Y CONSIGNA */}
           {currentStep === 3 && (
             <section ref={consignaSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
