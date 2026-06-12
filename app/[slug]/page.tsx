@@ -241,14 +241,39 @@ export default function RetiroDynamicPage() {
             )}
           </section>
 
-          {/* FASE 2: VIDEO */}
+          {/* FASE 2: INTRODUCCIÓN Y VIDEO */}
           {currentStep >= 2 && (
             <section ref={videoSectionRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
-              <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
-              <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares y disfrutá de este mensaje. El próximo paso aparecerá de forma automática cuando el video finalice.
-              </p>
+              
+              {/* BLOQUE DE INTRODUCCIÓN REQUERIDO */}
+              <div style={{ marginBottom: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#8a6b2f', margin: '0 0 4px 0', letterSpacing: '-0.01em' }}>
+                  Ya falta muy poco.
+                </h2>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
+                  Durante este tiempo te preparaste, rezaste, compartiste, te animaste a decir que sí y a confiar una vez más en Jesús.
+                </p>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
+                  Quizás hoy tengas expectativas, emociones, nervios o incluso algunas dudas. Y está bien.
+                </p>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#2f2417', margin: '4px 0', fontWeight: 'bold' }}>
+                  Porque Dios no llama personas perfectas. Llama corazones dispuestos.
+                </p>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
+                  Y si llegaste hasta acá, es porque Él sigue confiando en vos.
+                </p>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
+                  Antes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.
+                </p>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#3a2e2b', margin: '0', fontStyle: 'italic' }}>
+                  Hay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.
+                </p>
+                <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#8a6b2f', margin: '4px 0', fontWeight: 'bold' }}>
+                  Tomate unos minutos para recibir este regalo. ❤️
+                </p>
+              </div>
 
+              {/* REPRODUCTOR DE VIDEO VERTICAL */}
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                   <iframe
@@ -269,6 +294,7 @@ export default function RetiroDynamicPage() {
                 </button>
               )}
 
+              {/* CONTENIDO BLOQUEADO HASTA QUE EL VIDEO TERMINE */}
               {videoFinished && currentStep === 2 && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
                   <p style={{ fontFamily: 'sans-serif', fontSize: '14px', color: '#14532d', fontWeight: 'bold', marginBottom: '14px' }}>
