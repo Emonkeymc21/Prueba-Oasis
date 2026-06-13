@@ -20,7 +20,6 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Flujo de 5 pantallas consecutivas sin persistencia (Seguridad Obligatoria)
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [videoFinished, setVideoFinished] = useState(false);
 
@@ -28,7 +27,6 @@ export default function RetiroDynamicPage() {
   const [slider2X, setSlider2X] = useState(0);
   const [slider3X, setSlider3X] = useState(0);
 
-  // Estados interactivos para la animación de la flecha selectora
   const [isChoosing, setIsChoosing] = useState(false);
   const [decisionMade, setDecisionMade] = useState(false);
   const [shuffleToggle, setShuffleToggle] = useState(true);
@@ -51,8 +49,8 @@ export default function RetiroDynamicPage() {
     }
   }, []);
 
-  // API de YouTube para detectar fin de reproducción real
   useEffect(() => {
+    // Agregamos la verificación de existencia de dynamic aquí también
     if (currentStep === 2 && dynamic && dynamic.youtubeId && !window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
@@ -91,6 +89,17 @@ export default function RetiroDynamicPage() {
     });
   };
 
+  // 🔥 MEJORA DE COMPILACIÓN CRÍTICA: Guardia estricto de TypeScript
+  // Si los datos aún no cargaron o el slug es inválido, frena la ejecución aquí.
+  // Esto le asegura a la app que de aquí hacia abajo 'dynamic' JAMÁS será null.
+  if (!dynamic) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100dvh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', padding: '20px' }}>
+        <p style={{ fontSize: '18px', color: '#2f2417' }}>Cargando espacio personal...</p>
+      </div>
+    );
+  }
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateDynamicPassword(slug, passwordInput)) {
@@ -112,7 +121,7 @@ export default function RetiroDynamicPage() {
       setTimeout(() => {
         screen2Ref.current?.scrollIntoView({ behavior: "smooth" });
       }, 250);
-      if (!dynamic?.youtubeId) setVideoFinished(true);
+      if (!dynamic.youtubeId) setVideoFinished(true);
     } else {
       setSlider1X(val);
     }
@@ -146,7 +155,6 @@ export default function RetiroDynamicPage() {
     }
   };
 
-  // Disparador de la animación de selección aleatoria (Flechita dinámica)
   const handleBtnDescubrir = () => {
     setCurrentStep(5);
     setIsChoosing(true);
@@ -157,14 +165,12 @@ export default function RetiroDynamicPage() {
       screen5Ref.current?.scrollIntoView({ behavior: "smooth" });
     }, 150);
 
-    // Efecto estroboscópico/ruleta alternando rápidamente opciones en pantalla
     let sideToggler = true;
     const shuffleInterval = setInterval(() => {
       setShuffleToggle(sideToggler);
       sideToggler = !sideToggler;
     }, 100);
 
-    // Detener la ruleta y clavar la flecha en la opción que corresponde de la DB
     setTimeout(() => {
       clearInterval(shuffleInterval);
       setIsChoosing(false);
@@ -387,12 +393,10 @@ export default function RetiroDynamicPage() {
           {currentStep === 5 && (
             <section ref={screen5Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
-              {/* Flecha indicadora animada */}
               <div style={{ marginBottom: '16px', minHeight: '60px' }}>
                 <span className="selector-arrow">👇</span>
               </div>
 
-              {/* MIENTRAS SE ELIGE: Efecto de barajado elástico tipo ruleta */}
               {isChoosing && (
                 <div className="shuffling-options" style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '28px', padding: '40px 24px', border: '1px solid var(--line)', boxSizing: 'border-box', boxShadow: 'var(--shadow)' }}>
                   {shuffleToggle ? (
@@ -404,7 +408,6 @@ export default function RetiroDynamicPage() {
                 </div>
               )}
 
-              {/* REVELACIÓN FINAL CUANDO TERMINA EL JUEGO DE LA FLECHA */}
               {decisionMade && (
                 <div className="fade-in-section" style={{ width: '100%' }}>
                   {!dynamic.esIndividual && dynamic.companero ? (
@@ -458,7 +461,7 @@ export default function RetiroDynamicPage() {
                           ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.
                         </p>
                         <p style={{ fontStyle: 'italic', color: '#8a6b2f', fontWeight: 'bold' }}>
-                          Because mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
+                          Porque mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
                         </p>
                       </div>
                     </div>
