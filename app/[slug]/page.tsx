@@ -20,7 +20,6 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Flujo de 5 pantallas consecutivas y limpias
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [videoFinished, setVideoFinished] = useState(false);
 
@@ -40,7 +39,6 @@ export default function RetiroDynamicPage() {
     }
   }, [slug]);
 
-  // Conexión con la API de YouTube para detectar el final de forma real e infalible
   useEffect(() => {
     if (currentStep === 2 && dynamic && !window.YT) {
       const tag = document.createElement("script");
@@ -210,7 +208,7 @@ export default function RetiroDynamicPage() {
               <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
             </div>
 
-            <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '14px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
+            <span style={{ fontSize: '10px', fontFamily: 'sans-serif', letterSpacing: '4px', color: '#8a6b2f', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '16px', backgroundColor: 'rgba(138,107,47,0.08)', padding: '6px 16px', borderRadius: '999px' }}>
               Asistente
             </span>
             <h1 style={{ fontSize: '40px', margin: '0 0 24px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.02em' }}>{dynamic.nombre}</h1>
@@ -301,7 +299,7 @@ export default function RetiroDynamicPage() {
                 <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#2f2417', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <p>Quizás al llegar hasta acá te preguntaste si vas a estar a la altura.</p>
                   <p>Quizás te preguntaste si vas a saber qué decir, qué hacer o cómo acompañar.</p>
-                  <p style={{ fontWeight: 'bold', color: '#8a6b2f' }}>But Jesús nunca eligió personas porque lo supieran todo.</p>
+                  <p style={{ fontWeight: 'bold', color: '#8a6b2f' }}>Pero Jesús nunca eligió personas porque lo supieran todo.</p>
                   <p style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>Las eligió porque confiaba en ellas.</p>
                   <p style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center', color: '#8a6b2f' }}>Y hoy también confía en vos.</p>
                   <p>La misión que vas a recibir no es una prueba que tengas que aprobar. Es una oportunidad para amar, escuchar, acompañar y dejar que Dios actúe a través tuyo.</p>
@@ -379,30 +377,48 @@ export default function RetiroDynamicPage() {
                   </div>
                 </div>
               ) : (
-                /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO */
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', textAlign: 'left', boxSizing: 'border-box', width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-                    <span style={{ display: 'inline-block', padding: '6px 18px', backgroundColor: 'rgba(138,107,47,0.08)', color: '#8a6b2f', borderRadius: '999px', fontSize: '11px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO (DISEÑO RESALTADO CONFIRMADO POR CAPTURA) */
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
+                  
+                  {/* Píldora de cabecera destacada según image_d2c5bc.png */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                       🙌 Vas a estar a cargo vos de la dinámica
                     </span>
                   </div>
-                  <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <p style={{ fontWeight: 'bold', fontSize: '15px', color: '#2f2417', textAlign: 'center' }}>Esta vez te tocará acompañar solo.</p>
+
+                  {/* Frase principal grande y resaltada */}
+                  <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#2f2417', textAlign: 'center', margin: '0 0 28px 0', fontFamily: 'Georgia, serif' }}>
+                    Esta vez te tocará acompañar solo.
+                  </h3>
+
+                  <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
                     <p>Y quizás al leer esto aparezcan algunas dudas o algunos miedos.</p>
-                    <p style={{ fontStyle: 'italic', color: '#675744', textAlign: 'center' }}>Pero queremos que recuerdes algo:</p>
-                    <p style={{ fontWeight: 'bold', color: '#b91c1c', fontSize: '18px', textAlign: 'center', margin: '4px 0' }}>No vas solo.</p>
-                    <p>Jesús te acompañará en cada paso y este equipo caminará con vos durante todo el retiro.</p>
-                    <p>Confiamos en vos porque hemos visto todo lo que Dios viene haciendo en tu corazón.</p>
-                    <p>No tenés que tener todas las respuestas. No tenés que transformar la vida de nadie.</p>
-                    <p style={{ fontWeight: 'bold', color: '#8a6b2f', textAlign: 'center', fontSize: '15px' }}>Esa tarea es de Dios.</p>
-                    <p>Vos solamente dejate usar como instrumento suyo.</p>
-                    <p style={{ fontWeight: 'bold', textAlign: 'center', letterSpacing: '1px', color: '#20663a', margin: '6px 0' }}>ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.</p>
-                    <p style={{ fontStyle: 'italic', textAlign: 'center', color: '#8a6b2f', fontWeight: 'bold' }}>Porque mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️</p>
+                    <p style={{ fontStyle: 'italic', color: '#675744', margin: '4px 0' }}>Pero queremos que recuerdes algo:</p>
+                    
+                    {/* Exclamación en rojo oscuro destacado */}
+                    <p style={{ fontWeight: 'bold', color: '#901a1e', fontSize: '22px', margin: '6px 0', fontFamily: 'Georgia, serif' }}>
+                      No vas solo.
+                    </p>
+                    
+                    <p style={{ textAlign: 'left' }}>Jesús te acompañará en cada paso y este equipo caminará con vos durante todo el retiro.</p>
+                    <p style={{ textAlign: 'left' }}>Confiamos en vos porque hemos visto todo lo que Dios viene haciendo en tu corazón.</p>
+                    <p style={{ textAlign: 'left' }}>No tenés que tener todas las respuestas. No tenés que transformar la vida de nadie.</p>
+                    
+                    <p style={{ fontWeight: 'bold', color: '#8a6b2f', fontSize: '16px', margin: '4px 0' }}>Esa tarea es de Dios.</p>
+                    <p style={{ textAlign: 'left' }}>Vos solamente dejate usar como instrumento suyo.</p>
+                    
+                    <p style={{ fontWeight: 'bold', letterSpacing: '1px', color: '#20663a', margin: '8px 0', fontSize: '14px' }}>
+                      ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.
+                    </p>
+                    <p style={{ fontStyle: 'italic', color: '#8a6b2f', fontWeight: 'bold' }}>
+                      Porque mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
+                    </p>
                   </div>
                 </div>
               )}
 
-              <p style={{ fontSize: '14px', fontStyle: 'italic', color: '#675744', marginTop: '32px' }}>
+              <p style={{ fontSize: '14px', fontStyle: 'italic', color: '#675744', marginTop: '36px' }}>
                 Que tengas un hermoso y bendecido Oasis. 🕊️
               </p>
             </section>

@@ -158,9 +158,9 @@ export const retiroDynamics: Record<string, DynamicConfig> = {
   'mili-morales': {
     slug: 'mili-morales',
     nombre: 'Mili Morales',
-    password: 'Mili', // Clave definitiva configurada
-    youtubeId: 'B1tUVnlACtU',
-    esIndividual: true // Cambiar a false si en un futuro acompaña con alguien
+    password: 'Mili',
+    youtubeId: 'N4rIuvOY9PU', // URL de Short definitiva actualizada
+    esIndividual: true
   }
 };
 
