@@ -247,7 +247,7 @@ export default function RetiroDynamicPage() {
                 <p style={{ fontWeight: 'bold', color: '#8a6b2f', fontSize: '18px', textAlign: 'center', margin: '0' }}>Ya falta muy poco.</p>
                 <p>Durante este tiempo te preparaste, rezaste, compartiste, te animaste a decir que sí y a confiar una vez más en Jesús.</p>
                 <p>Quizás hoy tengas expectativas, emociones, nervios o incluso algunas dudas. Y está bien.</p>
-                <p style={{ fontWeight: 'bold', color: '#2f2417', textAlign: 'center' }}>Because Dios no llama personas perfectas. Llama corazones dispuestos.</p>
+                <p style={{ fontWeight: 'bold', color: '#2f2417', textAlign: 'center' }}>Dios no llama personas perfectas. Llama corazones dispuestos.</p>
                 <p>Y si llegaste hasta acá, es porque Él sigue confiando en vos.</p>
                 <p>Antes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.</p>
                 <p>Hay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.</p>
@@ -478,7 +478,7 @@ export default function RetiroDynamicPage() {
                           ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.
                         </p>
                         <p style={{ fontStyle: 'italic', color: '#8a6b2f', fontWeight: 'bold' }}>
-                          Because mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
+                          Mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
                         </p>
                       </div>
                     </div>
