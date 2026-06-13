@@ -143,7 +143,7 @@ export function validateInvitationPassword(slug: string, password: string) {
 // 2. NUEVA ESTRUCTURA (DINÁMICA RETIRO - DEMO)
 // ==========================================
 
-// lib/invitations.ts (Sección Final)
+// lib/invitations.ts
 
 export type DynamicConfig = {
   slug: string;
@@ -152,8 +152,8 @@ export type DynamicConfig = {
   mensajeBienvenida: string;
   youtubeId: string;
   lugarEvangelioAsignado: string;
-  esIndividual: boolean;
-  companero?: string;
+  esIndividual: boolean;    
+  companero?: string;       
   actividadEspecifica: string;
 };
 
@@ -172,12 +172,11 @@ export const retiroDynamics: Record<string, DynamicConfig> = {
   'mili-morales': {
     slug: 'mili-morales',
     nombre: 'Mili Morales',
-    password: 'DEMO',
-    // REEMPLAZADO AQUÍ DIRECTAMENTE:
+    password: 'MILI', // Clave oficial de acceso corregida
     mensajeBienvenida: 'Ya falta muy poco.\n\nDurante este tiempo te preparaste, rezaste, compartiste, te animaste a decir que sí y a confiar una vez más en Jesús.\n\nQuizás hoy tengas expectativas, emociones, nervios o incluso algunas dudas. Y está bien.\n\nPorque Dios no llama personas perfectas. Llama corazones dispuestos.\n\nY si llegaste hasta acá, es porque Él sigue confiando en vos.\n\nAntes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.\n\nHay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.\n\nTomate unos minutos para recibir este regalo. ❤️',
     youtubeId: 'B1tUVnlACtU',
     lugarEvangelioAsignado: 'Jerusalén',
-    esIndividual: true,
+    esIndividual: true, 
     actividadEspecifica: 'Jesús entra en Jerusalén aclamado, pero también dispuesto a la entrega total por amor.\n\nDirigite al sector del Sagrario de la capilla. Encontrá un momento de absoluto silencio frente a Él.\n\nAbrí la biblia en Lucas 19, 28-40, meditá en cómo estás aclamando a Jesús en tu vida hoy y qué estás dispuesta a entregarle en sus manos.'
   }
 };
