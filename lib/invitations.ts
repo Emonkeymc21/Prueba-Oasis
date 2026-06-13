@@ -180,7 +180,7 @@ export const retiroDynamics: Record<string, DynamicConfig> = {
     slug: 'aru-osterauer',
     nombre: 'Aruma Osterauer',
     password: 'Arumao',
-    youtubeId: 'p3nE09FCMco', // Pega el ID del Short de Aruma acá cuando lo tengas
+    youtubeId: 'JDWpo_MOx84', // Pega el ID del Short de Aruma acá cuando lo tengas
     esIndividual: false,
     companero: 'Sofi Mutis'
   },
