@@ -22,6 +22,7 @@ export default function RetiroDynamicPage() {
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [videoFinished, setVideoFinished] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(true);
 
   const [slider1X, setSlider1X] = useState(0);
   const [slider2X, setSlider2X] = useState(0);
@@ -69,10 +70,10 @@ export default function RetiroDynamicPage() {
     
     playerRef.current = new window.YT.Player("player-iframe", {
       playerVars: {
-        autoplay: 0,        // 💡 Modificado: Desactivamos el inicio automático que forzaba el silencio
-        mute: 0,            // 💡 Modificado: Desactivamos el silenciador para que se escuche al máximo
-        controls: 1,
-        modestbranding: 1,
+        autoplay: 1,        // ➔ Volvemos al Autoplay obligatorio para ocultar interfaz
+        mute: 1,            // ➔ Volvemos al Mute obligatorio para engañar al celular
+        controls: 0,        // ➔ Oculta controles nativos molestos
+        modestbranding: 1,  // ➔ Oculta el logo gigante de YouTube
         rel: 0,
         showinfo: 0,
         iv_load_policy: 3
@@ -88,10 +89,12 @@ export default function RetiroDynamicPage() {
     });
   };
 
-  // Función interactiva para lanzar el video con audio activado por el usuario
-  const handlePlayVideo = () => {
-    if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
-      playerRef.current.playVideo();
+  // Función mágica para activar el sonido de forma interactiva sin romper el diseño
+  const handleUnmuteVideo = () => {
+    if (playerRef.current && typeof playerRef.current.unMute === 'function') {
+      playerRef.current.unMute();
+      setIsVideoMuted(false);
+      triggerVibration();
     }
   };
 
@@ -244,7 +247,7 @@ export default function RetiroDynamicPage() {
                 <p style={{ fontWeight: 'bold', color: '#8a6b2f', fontSize: '18px', textAlign: 'center', margin: '0' }}>Ya falta muy poco.</p>
                 <p>Durante este tiempo te preparaste, rezaste, compartiste, te animaste a decir que sí y a confiar una vez más en Jesús.</p>
                 <p>Quizás hoy tengas expectativas, emociones, nervios o incluso algunas dudas. Y está bien.</p>
-                <p style={{ fontWeight: 'bold', color: '#2f2417', textAlign: 'center' }}>Porque Dios no llama personas perfectas. Llama corazones dispuestos.</p>
+                <p style={{ fontWeight: 'bold', color: '#2f2417', textAlign: 'center' }}>Because Dios no llama personas perfectas. Llama corazones dispuestos.</p>
                 <p>Y si llegaste hasta acá, es porque Él sigue confiando en vos.</p>
                 <p>Antes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.</p>
                 <p>Hay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.</p>
@@ -278,26 +281,27 @@ export default function RetiroDynamicPage() {
           {currentStep >= 2 && (
             <section ref={screen2Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
-              <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 16px 0', lineHeight: '1.4' }}>
-                Subí el volumen, ponete los auriculares y presioná el botón para escuchar este mensaje especial.
+              <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 20px 0', lineHeight: '1.4' }}>
+                Ponete los auriculares. El video arranca de forma automática. Tocá el botón de abajo para activar el sonido.
               </p>
 
-              {/* Botón premium de Play para forzar la activación de audio nativo en móviles */}
-              {!videoFinished && (
+              {/* Botón dinámico para desmutear sin romper la API oculta de YouTube */}
+              {isVideoMuted && !videoFinished && (
                 <button
-                  onClick={handlePlayVideo}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#2f2417', color: '#ffffff', border: 'none', borderRadius: '999px', fontSize: '13px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '24px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
+                  onClick={handleUnmuteVideo}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#8a6b2f', color: '#ffffff', border: 'none', borderRadius: '999px', fontSize: '13px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '24px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(138,107,47,0.25)' }}
                 >
-                  🔊 REPRODUCIR CON AUDIO
+                  🔊 ACTIVAR SONIDO
                 </button>
               )}
 
+              {/* Retenemos el zoom 1.28 y los hacks estéticos originales */}
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 {dynamic.youtubeId ? (
                   <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                     <iframe
                       id="player-iframe"
-                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=1&showinfo=0&iv_load_policy=3`}
+                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1&mute=1`}
                       style={{ width: '100%', height: '100%', border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
@@ -474,7 +478,7 @@ export default function RetiroDynamicPage() {
                           ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.
                         </p>
                         <p style={{ fontStyle: 'italic', color: '#8a6b2f', fontWeight: 'bold' }}>
-                          Porque mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
+                          Because mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
                         </p>
                       </div>
                     </div>
