@@ -149,35 +149,18 @@ export type DynamicConfig = {
   slug: string;
   nombre: string;
   password: string;
-  mensajeBienvenida: string;
   youtubeId: string;
-  lugarEvangelioAsignado: string;
-  esIndividual: boolean;    
-  companero?: string;       
-  actividadEspecifica: string;
+  esIndividual: boolean;    // true para Pantalla 5B (Solo), false para Pantalla 5A (Coequiper)
+  companero?: string;       // Nombre del coequiper si esIndividual es false
 };
-
-export const lugaresEvangelio = [
-  "Pesebre de Belén",
-  "Río Jordán",
-  "Desierto de Judea",
-  "Mar de Galilea",
-  "Monte de los Olivos",
-  "Jerusalén",
-  "Caná de Galilea",
-  "Pozo de Sicar"
-];
 
 export const retiroDynamics: Record<string, DynamicConfig> = {
   'mili-morales': {
     slug: 'mili-morales',
     nombre: 'Mili Morales',
-    password: 'MILI', // Clave oficial de acceso corregida
-    mensajeBienvenida: 'Ya falta muy poco.\n\nDurante este tiempo te preparaste, rezaste, compartiste, te animaste a decir que sí y a confiar una vez más en Jesús.\n\nQuizás hoy tengas expectativas, emociones, nervios o incluso algunas dudas. Y está bien.\n\nPorque Dios no llama personas perfectas. Llama corazones dispuestos.\n\nY si llegaste hasta acá, es porque Él sigue confiando en vos.\n\nAntes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.\n\nHay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.\n\nTomate unos minutos para recibir este regalo. ❤️',
+    password: 'Mili', // Clave definitiva configurada
     youtubeId: 'B1tUVnlACtU',
-    lugarEvangelioAsignado: 'Jerusalén',
-    esIndividual: true, 
-    actividadEspecifica: 'Jesús entra en Jerusalén aclamado, pero también dispuesto a la entrega total por amor.\n\nDirigite al sector del Sagrario de la capilla. Encontrá un momento de absoluto silencio frente a Él.\n\nAbrí la biblia en Lucas 19, 28-40, meditá en cómo estás aclamando a Jesús en tu vida hoy y qué estás dispuesta a entregarle en sus manos.'
+    esIndividual: true // Cambiar a false si en un futuro acompaña con alguien
   }
 };
 
@@ -188,5 +171,5 @@ export function getDynamicBySlug(slug: string) {
 export function validateDynamicPassword(slug: string, password: string): boolean {
   const dynamic = retiroDynamics[slug];
   if (!dynamic) return false;
-  return dynamic.password.trim().toUpperCase() === password.trim().toUpperCase();
+  return dynamic.password.trim() === password.trim();
 }
