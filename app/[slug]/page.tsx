@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { getDynamicBySlug, validateDynamicPassword, DynamicConfig } from "@/lib/invitations";
 
@@ -20,6 +20,7 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Flujo de 5 pantallas. Se inicializa leyendo localStorage si existe.
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [videoFinished, setVideoFinished] = useState(false);
 
@@ -33,12 +34,54 @@ export default function RetiroDynamicPage() {
   const screen5Ref = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
 
+  // 1. MEJORA: Carga de datos y Recuperación de Sesión (localStorage)
   useEffect(() => {
     if (slug) {
-      setDynamic(getDynamicBySlug(slug));
+      const config = getDynamicBySlug(slug);
+      setDynamic(config);
+
+      if (config) {
+        // Intentar recuperar sesión guardada para este slug específico
+        const savedSession = localStorage.getItem(`oasis_session_${slug}`);
+        if (savedSession) {
+          try {
+            const { step, videoDone } = JSON.parse(savedSession);
+            setIsAuthenticated(true);
+            setCurrentStep(step);
+            setVideoFinished(videoDone);
+            
+            // Scroll automático al paso recuperado después del render
+            setTimeout(() => {
+              const refs = [null, null, screen2Ref, screen3Ref, screen4Ref, screen5Ref];
+              refs[step]?.current?.scrollIntoView({ behavior: "instant" });
+            }, 100);
+          } catch (e) {
+            console.error("Error recuperando sesión", e);
+            localStorage.removeItem(`oasis_session_${slug}`); // Limpiar si está corrupto
+          }
+        }
+      }
     }
   }, [slug]);
 
+  // 1. MEJORA: Guardado de sesión ante cambios de estado
+  useEffect(() => {
+    if (isAuthenticated && dynamic) {
+      localStorage.setItem(`oasis_session_${dynamic.slug}`, JSON.stringify({
+        step: currentStep,
+        videoDone: videoFinished
+      }));
+    }
+  }, [isAuthenticated, currentStep, videoFinished, dynamic]);
+
+  // 3. MEJORA: Feedback Táctil (Vibración sutil)
+  const triggerVibration = useCallback(() => {
+    if (typeof window !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(50); // 50ms de vibración sutil confirmando acción
+    }
+  }, []);
+
+  // API de YouTube para control real e infalible (Muteado para asegurar autoplay en celu)
   useEffect(() => {
     if (currentStep === 2 && dynamic && dynamic.youtubeId && !window.YT) {
       const tag = document.createElement("script");
@@ -63,10 +106,21 @@ export default function RetiroDynamicPage() {
     if (!dynamic || !dynamic.youtubeId || playerRef.current || !window.YT) return;
     
     playerRef.current = new window.YT.Player("player-iframe", {
+      // 5. MEJORA UX: Mute=1 asegura que el autoplay funcione sí o sí en móviles
+      playerVars: {
+        autoplay: 1,
+        mute: 1, 
+        controls: 1,
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 0,
+        iv_load_policy: 3
+      },
       events: {
         onStateChange: (event: any) => {
           if (event.data === window.YT.PlayerState.ENDED) {
             setVideoFinished(true);
+            triggerVibration(); // Vibración al terminar
           }
         },
       },
@@ -75,7 +129,7 @@ export default function RetiroDynamicPage() {
 
   if (!dynamic) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', padding: '20px' }}>
+      <div style={{ display: 'flex', minHeight: '100dvh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', padding: '20px' }}>
         <p style={{ fontSize: '18px', color: '#2f2417' }}>Participante no encontrado.</p>
       </div>
     );
@@ -86,20 +140,23 @@ export default function RetiroDynamicPage() {
     if (validateDynamicPassword(slug, passwordInput)) {
       setIsAuthenticated(true);
       setErrorMsg("");
+      triggerVibration();
     } else {
       setErrorMsg("Clave incorrecta. Intentá de nuevo.");
+      if (navigator.vibrate) navigator.vibrate([50, 100, 50]); // Vibración de error
     }
   };
 
+  // Controladores de Deslizadores con scroll automático y vibración
   const handleSlider1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value);
     if (val >= 90) {
       setSlider1X(100);
       setCurrentStep(2);
+      triggerVibration();
       setTimeout(() => {
         screen2Ref.current?.scrollIntoView({ behavior: "smooth" });
       }, 250);
-      // Failsafe por si no hay video cargado (ej. Aruma temporalmente)
       if (!dynamic.youtubeId) {
         setVideoFinished(true);
       }
@@ -113,6 +170,7 @@ export default function RetiroDynamicPage() {
     if (val >= 90) {
       setSlider2X(100);
       setCurrentStep(3);
+      triggerVibration();
       setTimeout(() => {
         screen3Ref.current?.scrollIntoView({ behavior: "smooth" });
       }, 250);
@@ -126,6 +184,7 @@ export default function RetiroDynamicPage() {
     if (val >= 90) {
       setSlider3X(100);
       setCurrentStep(4);
+      triggerVibration();
       setTimeout(() => {
         screen4Ref.current?.scrollIntoView({ behavior: "smooth" });
       }, 250);
@@ -136,23 +195,29 @@ export default function RetiroDynamicPage() {
 
   const handleBtnDescubrir = () => {
     setCurrentStep(5);
+    triggerVibration();
     setTimeout(() => {
       screen5Ref.current?.scrollIntoView({ behavior: "smooth" });
     }, 150);
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 60px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
+    // 4. MEJORA UX: Uso de 100dvh para evitar recortes de barras del navegador móvil
+    <div style={{ minHeight: '100dvh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 60px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
       
+      {/* 2. MEJORA: Definición de Animaciones CSS Fade-In */}
       <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes shimmer {
           0% { background-position: -200px 0; }
           100% { background-position: 200px 0; }
         }
-        @keyframes customPulse {
-          0% { transform: scale(1); opacity: 0.9; }
-          50% { transform: scale(1.03); opacity: 1; }
-          100% { transform: scale(1); opacity: 0.9; }
+        .fade-in-section {
+          animation: fadeIn 0.8s ease-out forwards;
+          opacity: 0; /* Empieza invisible */
         }
         .shimmer-text {
           background: linear-gradient(to right, #7a6750 20%, #2f2417 50%, #7a6750 80%);
@@ -172,8 +237,9 @@ export default function RetiroDynamicPage() {
 
       {/* LOGIN */}
       {!isAuthenticated ? (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
-          <div style={{ width: '100%', maxWidth: '350px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '36px 24px', boxShadow: '0 15px 35px rgba(47,36,23,0.06)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
+        // 7. MEJORA UX: Precarga de imagen crítica en Layout/Head para login instantáneo
+        <div style={{ minHeight: '100dvh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
+          <div className="fade-in-section" style={{ width: '100%', maxWidth: '350px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '36px 24px', boxShadow: '0 15px 35px rgba(47,36,23,0.06)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
             
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
               <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
@@ -203,7 +269,8 @@ export default function RetiroDynamicPage() {
       ) : (
         <>
           {/* 🌿 PANTALLA 1 – BIENVENIDA */}
-          <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+          {/* 2. MEJORA: Fade-In suave al cargar */}
+          <section className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
             
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
               <img src="/image_ff6643.png" alt="Logo Oasis" style={{ height: '110px', width: 'auto', objectFit: 'contain' }} />
@@ -250,19 +317,21 @@ export default function RetiroDynamicPage() {
           </section>
 
           {/* 🎥 PANTALLA 2 – VIDEO */}
+          {/* 2. MEJORA: Fade-In suave en cada transición */}
           {currentStep >= 2 && (
-            <section ref={screen2Ref} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+            <section ref={screen2Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
               <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
                 Ponete los auriculares y disfrutá de este mensaje especial. El próximo paso aparecerá automáticamente cuando el video finalice.
               </p>
 
+              {/* 5. MEJORA UX: Muteado por defecto y zoom para vertical Short */}
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 {dynamic.youtubeId ? (
                   <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                     <iframe
                       id="player-iframe"
-                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1`}
+                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1&mute=1`}
                       style={{ width: '100%', height: '100%', border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
@@ -275,7 +344,7 @@ export default function RetiroDynamicPage() {
               </div>
 
               {videoFinished && currentStep === 2 && (
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div style={{ width: '100%', maxWidth: '290px', position: 'relative', height: '58px', backgroundColor: '#d1e7dd', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)' }}>
                     <span className="shimmer-green-text" style={{ fontFamily: 'sans-serif', fontSize: '11px', fontWeight: 'bold', color: '#14532d', letterSpacing: '1px', pointerEvents: 'none', zIndex: 1, opacity: 1 - slider2X / 80 }}>
                       DESLIZÁ PARA SABER ➔
@@ -301,7 +370,7 @@ export default function RetiroDynamicPage() {
 
           {/* 🌿 PANTALLA 3 – MENSAJE DE CONFIANZA */}
           {currentStep >= 3 && (
-            <section ref={screen3Ref} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+            <section ref={screen3Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '32px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', textAlign: 'left', marginBottom: '32px', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#2f2417', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <p>Quizás al llegar hasta acá te preguntaste si vas a estar a la altura.</p>
@@ -344,7 +413,7 @@ export default function RetiroDynamicPage() {
 
           {/* 🌿 PANTALLA 4 – TRANSICIÓN */}
           {currentStep >= 4 && (
-            <section ref={screen4Ref} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
+            <section ref={screen4Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '32px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', textAlign: 'center', marginBottom: '36px', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <p>Hay corazones que Dios quiere alcanzar en este Oasis.</p>
@@ -369,15 +438,15 @@ export default function RetiroDynamicPage() {
 
           {/* 🌿 PANTALLA 5 – REVELACIÓN COEQUIPER / SOLO */}
           {currentStep === 5 && (
-            <section ref={screen5Ref} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center', animation: 'fadeIn 0.6s ease-out' }}>
+            <section ref={screen5Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
               {!dynamic.esIndividual && dynamic.companero ? (
                 /* 🌿 PANTALLA 5A – SI TIENE COEQUIPER */
                 <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
                   
-                  {/* Píldora de cabecera para coequiper */}
+                  {/* Píldora de cabecera para coequiper (Efecto sutil) */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#f2f9f5', color: '#14532d', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #d1e7dd' }}>
+                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#f2f9f5', color: '#14532d', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #d1e7dd', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                       👥 Trabajo en Equipo
                     </span>
                   </div>
@@ -394,11 +463,12 @@ export default function RetiroDynamicPage() {
                 </div>
               ) : (
                 /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO */
+                /* 6. MEJORA: Pulido visual de estilos para match exacto con image_d2c5bc.png */
                 <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
                   
                   {/* Píldora de cabecera destacada según image_d2c5bc.png */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8' }}>
+                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                       🙌 Vas a estar a cargo vos de la dinámica
                     </span>
                   </div>
