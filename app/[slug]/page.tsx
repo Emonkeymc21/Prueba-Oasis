@@ -20,7 +20,7 @@ export default function RetiroDynamicPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Flujo de 5 pantallas. Se inicializa leyendo localStorage si existe.
+  // Flujo de 5 pantallas consecutivas sin persistencia (Seguridad Obligatoria)
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [videoFinished, setVideoFinished] = useState(false);
 
@@ -28,60 +28,30 @@ export default function RetiroDynamicPage() {
   const [slider2X, setSlider2X] = useState(0);
   const [slider3X, setSlider3X] = useState(0);
 
+  // Estados interactivos para la animación de la flecha selectora
+  const [isChoosing, setIsChoosing] = useState(false);
+  const [decisionMade, setDecisionMade] = useState(false);
+  const [shuffleToggle, setShuffleToggle] = useState(true);
+
   const screen2Ref = useRef<HTMLDivElement>(null);
   const screen3Ref = useRef<HTMLDivElement>(null);
   const screen4Ref = useRef<HTMLDivElement>(null);
   const screen5Ref = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
 
-  // 1. MEJORA: Carga de datos y Recuperación de Sesión (localStorage)
   useEffect(() => {
     if (slug) {
-      const config = getDynamicBySlug(slug);
-      setDynamic(config);
-
-      if (config) {
-        // Intentar recuperar sesión guardada para este slug específico
-        const savedSession = localStorage.getItem(`oasis_session_${slug}`);
-        if (savedSession) {
-          try {
-            const { step, videoDone } = JSON.parse(savedSession);
-            setIsAuthenticated(true);
-            setCurrentStep(step);
-            setVideoFinished(videoDone);
-            
-            // Scroll automático al paso recuperado después del render
-            setTimeout(() => {
-              const refs = [null, null, screen2Ref, screen3Ref, screen4Ref, screen5Ref];
-              refs[step]?.current?.scrollIntoView({ behavior: "instant" });
-            }, 100);
-          } catch (e) {
-            console.error("Error recuperando sesión", e);
-            localStorage.removeItem(`oasis_session_${slug}`); // Limpiar si está corrupto
-          }
-        }
-      }
+      setDynamic(getDynamicBySlug(slug));
     }
   }, [slug]);
 
-  // 1. MEJORA: Guardado de sesión ante cambios de estado
-  useEffect(() => {
-    if (isAuthenticated && dynamic) {
-      localStorage.setItem(`oasis_session_${dynamic.slug}`, JSON.stringify({
-        step: currentStep,
-        videoDone: videoFinished
-      }));
-    }
-  }, [isAuthenticated, currentStep, videoFinished, dynamic]);
-
-  // 3. MEJORA: Feedback Táctil (Vibración sutil)
   const triggerVibration = useCallback(() => {
     if (typeof window !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(50); // 50ms de vibración sutil confirmando acción
+      navigator.vibrate(50);
     }
   }, []);
 
-  // API de YouTube para control real e infalible (Muteado para asegurar autoplay en celu)
+  // API de YouTube para detectar fin de reproducción real
   useEffect(() => {
     if (currentStep === 2 && dynamic && dynamic.youtubeId && !window.YT) {
       const tag = document.createElement("script");
@@ -95,18 +65,12 @@ export default function RetiroDynamicPage() {
     } else if (currentStep === 2 && dynamic && window.YT) {
       initPlayer();
     }
-
-    if (currentStep === 2) {
-      const globalAudios = document.querySelectorAll("audio");
-      globalAudios.forEach((audio) => audio.pause());
-    }
   }, [currentStep, dynamic]);
 
   const initPlayer = () => {
     if (!dynamic || !dynamic.youtubeId || playerRef.current || !window.YT) return;
     
     playerRef.current = new window.YT.Player("player-iframe", {
-      // 5. MEJORA UX: Mute=1 asegura que el autoplay funcione sí o sí en móviles
       playerVars: {
         autoplay: 1,
         mute: 1, 
@@ -120,20 +84,12 @@ export default function RetiroDynamicPage() {
         onStateChange: (event: any) => {
           if (event.data === window.YT.PlayerState.ENDED) {
             setVideoFinished(true);
-            triggerVibration(); // Vibración al terminar
+            triggerVibration();
           }
         },
       },
     });
   };
-
-  if (!dynamic) {
-    return (
-      <div style={{ display: 'flex', minHeight: '100dvh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', padding: '20px' }}>
-        <p style={{ fontSize: '18px', color: '#2f2417' }}>Participante no encontrado.</p>
-      </div>
-    );
-  }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,11 +99,10 @@ export default function RetiroDynamicPage() {
       triggerVibration();
     } else {
       setErrorMsg("Clave incorrecta. Intentá de nuevo.");
-      if (navigator.vibrate) navigator.vibrate([50, 100, 50]); // Vibración de error
+      if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
     }
   };
 
-  // Controladores de Deslizadores con scroll automático y vibración
   const handleSlider1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value);
     if (val >= 90) {
@@ -157,9 +112,7 @@ export default function RetiroDynamicPage() {
       setTimeout(() => {
         screen2Ref.current?.scrollIntoView({ behavior: "smooth" });
       }, 250);
-      if (!dynamic.youtubeId) {
-        setVideoFinished(true);
-      }
+      if (!dynamic?.youtubeId) setVideoFinished(true);
     } else {
       setSlider1X(val);
     }
@@ -193,51 +146,48 @@ export default function RetiroDynamicPage() {
     }
   };
 
+  // Disparador de la animación de selección aleatoria (Flechita dinámica)
   const handleBtnDescubrir = () => {
     setCurrentStep(5);
+    setIsChoosing(true);
+    setDecisionMade(false);
     triggerVibration();
+
     setTimeout(() => {
       screen5Ref.current?.scrollIntoView({ behavior: "smooth" });
     }, 150);
+
+    // Efecto estroboscópico/ruleta alternando rápidamente opciones en pantalla
+    let sideToggler = true;
+    const shuffleInterval = setInterval(() => {
+      setShuffleToggle(sideToggler);
+      sideToggler = !sideToggler;
+    }, 100);
+
+    // Detener la ruleta y clavar la flecha en la opción que corresponde de la DB
+    setTimeout(() => {
+      clearInterval(shuffleInterval);
+      setIsChoosing(false);
+      setDecisionMade(true);
+      triggerVibration();
+    }, 2200);
   };
 
   return (
-    // 4. MEJORA UX: Uso de 100dvh para evitar recortes de barras del navegador móvil
     <div style={{ minHeight: '100dvh', backgroundColor: '#fdfbf7', color: '#2f2417', fontFamily: 'Georgia, serif', padding: '0 0 60px 0', boxSizing: 'border-box', overflowX: 'hidden' }}>
       
-      {/* 2. MEJORA: Definición de Animaciones CSS Fade-In */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes shimmer {
-          0% { background-position: -200px 0; }
-          100% { background-position: 200px 0; }
-        }
         .fade-in-section {
           animation: fadeIn 0.8s ease-out forwards;
-          opacity: 0; /* Empieza invisible */
-        }
-        .shimmer-text {
-          background: linear-gradient(to right, #7a6750 20%, #2f2417 50%, #7a6750 80%);
-          background-size: 200px 100%;
-          animation: shimmer 2.5s infinite linear;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-        .shimmer-green-text {
-          background: linear-gradient(to right, #14532d 20%, #20663a 50%, #14532d 80%);
-          background-size: 200px 100%;
-          animation: shimmer 2.5s infinite linear;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
         }
       `}} />
 
       {/* LOGIN */}
       {!isAuthenticated ? (
-        // 7. MEJORA UX: Precarga de imagen crítica en Layout/Head para login instantáneo
         <div style={{ minHeight: '100dvh', backgroundColor: '#f6f1e8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', boxSizing: 'border-box' }}>
           <div className="fade-in-section" style={{ width: '100%', maxWidth: '350px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '36px 24px', boxShadow: '0 15px 35px rgba(47,36,23,0.06)', border: '1px solid rgba(138,107,47,0.1)', textAlign: 'center', boxSizing: 'border-box' }}>
             
@@ -269,7 +219,6 @@ export default function RetiroDynamicPage() {
       ) : (
         <>
           {/* 🌿 PANTALLA 1 – BIENVENIDA */}
-          {/* 2. MEJORA: Fade-In suave al cargar */}
           <section className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
             
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
@@ -290,7 +239,7 @@ export default function RetiroDynamicPage() {
                 <p>Y si llegaste hasta acá, es porque Él sigue confiando en vos.</p>
                 <p>Antes de descubrir la misión que te espera en este Oasis, queremos regalarte algo muy especial.</p>
                 <p>Hay alguien que conoce muy bien ese lugar que hoy estás ocupando. Alguien que caminó con vos, te acompañó y vio crecer la obra de Dios en tu vida.</p>
-                <p style={{ fontWeight: 'bold', textAlign: 'center', color: '#8a6b2f' }}>Tomate unos minutos para recibir este regalo. ❤️</p>
+                <p style={{ fontWeight: 'bold', textAlign: 'center', color: '#8a6b2f' }}>Tomate unos minutos para recibir este regalo. <span className="heart-pulse">❤️</span></p>
               </div>
             </div>
 
@@ -317,7 +266,6 @@ export default function RetiroDynamicPage() {
           </section>
 
           {/* 🎥 PANTALLA 2 – VIDEO */}
-          {/* 2. MEJORA: Fade-In suave en cada transición */}
           {currentStep >= 2 && (
             <section ref={screen2Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
@@ -325,7 +273,6 @@ export default function RetiroDynamicPage() {
                 Ponete los auriculares y disfrutá de este mensaje especial. El próximo paso aparecerá automáticamente cuando el video finalice.
               </p>
 
-              {/* 5. MEJORA UX: Muteado por defecto y zoom para vertical Short */}
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 {dynamic.youtubeId ? (
                   <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
@@ -436,77 +383,92 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* 🌿 PANTALLA 5 – REVELACIÓN COEQUIPER / SOLO */}
+          {/* 🌿 PANTALLA 5 – REVELACIÓN INTERACTIVA (CON FLECHA SELECTORA) */}
           {currentStep === 5 && (
             <section ref={screen5Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               
-              {!dynamic.esIndividual && dynamic.companero ? (
-                /* 🌿 PANTALLA 5A – SI TIENE COEQUIPER */
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
-                  
-                  {/* Píldora de cabecera para coequiper (Efecto sutil) */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#f2f9f5', color: '#14532d', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #d1e7dd', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-                      👥 Trabajo en Equipo
-                    </span>
-                  </div>
+              {/* Flecha indicadora animada */}
+              <div style={{ marginBottom: '16px', minHeight: '60px' }}>
+                <span className="selector-arrow">👇</span>
+              </div>
 
-                  <p style={{ fontSize: '15px', color: '#675744', margin: '0 0 10px 0' }}>Tu coequiper en esta misión será:</p>
-                  <h3 style={{ fontSize: '28px', fontWeight: 'bold', color: '#b91c1c', margin: '0 0 24px 0', fontFamily: 'Georgia, serif' }}>❤️ {dynamic.companero}</h3>
-                  
-                  <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center' }}>
-                    <p>Que juntos puedan escuchar, acompañar, sostener y dejarse sorprender por todo lo que Dios tiene preparado para este Oasis.</p>
-                    <p style={{ fontWeight: 'bold', color: '#8a6b2f' }}>Confiamos en ustedes.</p>
-                    <p style={{ textAlign: 'left' }}>Que puedan apoyarse mutuamente, complementarse y recordar siempre que Jesús será el verdadero protagonista de cada encuentro.</p>
-                    <p style={{ fontWeight: 'bold', color: '#20663a', fontSize: '15px', marginTop: '4px' }}>¡Que disfruten esta hermosa misión! ✨</p>
-                  </div>
-                </div>
-              ) : (
-                /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO */
-                /* 6. MEJORA: Pulido visual de estilos para match exacto con image_d2c5bc.png */
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
-                  
-                  {/* Píldora de cabecera destacada según image_d2c5bc.png */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-                      🙌 Vas a estar a cargo vos de la dinámica
-                    </span>
-                  </div>
-
-                  {/* Frase principal grande y resaltada */}
-                  <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#2f2417', textAlign: 'center', margin: '0 0 28px 0', fontFamily: 'Georgia, serif' }}>
-                    Esta vez te tocará acompañar solo.
-                  </h3>
-
-                  <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
-                    <p>Y quizás al leer esto aparezcan algunas dudas o algunos miedos.</p>
-                    <p style={{ fontStyle: 'italic', color: '#675744', margin: '4px 0' }}>Pero queremos que recuerdes algo:</p>
-                    
-                    {/* Exclamación en rojo oscuro destacado */}
-                    <p style={{ fontWeight: 'bold', color: '#901a1e', fontSize: '22px', margin: '6px 0', fontFamily: 'Georgia, serif' }}>
-                      No vas solo.
-                    </p>
-                    
-                    <p style={{ textAlign: 'left' }}>Jesús te acompañará en cada paso y este equipo caminará con vos durante todo el retiro.</p>
-                    <p style={{ textAlign: 'left' }}>Confiamos en vos porque hemos visto todo lo que Dios viene haciendo en tu corazón.</p>
-                    <p style={{ textAlign: 'left' }}>No tenés que tener todas las respuestas. No tenés que transformar la vida de nadie.</p>
-                    
-                    <p style={{ fontWeight: 'bold', color: '#8a6b2f', fontSize: '16px', margin: '4px 0' }}>Esa tarea es de Dios.</p>
-                    <p style={{ textAlign: 'left' }}>Vos solamente dejate usar como instrumento suyo.</p>
-                    
-                    <p style={{ fontWeight: 'bold', letterSpacing: '1px', color: '#20663a', margin: '8px 0', fontSize: '14px' }}>
-                      ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.
-                    </p>
-                    <p style={{ fontStyle: 'italic', color: '#8a6b2f', fontWeight: 'bold' }}>
-                      Porque mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
-                    </p>
-                  </div>
+              {/* MIENTRAS SE ELIGE: Efecto de barajado elástico tipo ruleta */}
+              {isChoosing && (
+                <div className="shuffling-options" style={{ width: '100%', backgroundColor: '#ffffff', borderRadius: '28px', padding: '40px 24px', border: '1px solid var(--line)', boxSizing: 'border-box', boxShadow: 'var(--shadow)' }}>
+                  {shuffleToggle ? (
+                    <h3 style={{ fontSize: '20px', fontWeight: '900', color: 'var(--accent)', fontFamily: 'Georgia, serif' }}>Esta vez te tocará acompañar solo...</h3>
+                  ) : (
+                    <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#20663a', fontFamily: 'Georgia, serif' }}>Tu coequiper en esta misión será...</h3>
+                  )}
+                  <p style={{ fontSize: '14px', fontStyle: 'italic', color: 'var(--muted)', marginTop: '10px' }}>Discerniendo la estructura pensada para vos...</p>
                 </div>
               )}
 
-              <p style={{ fontSize: '14px', fontStyle: 'italic', color: '#675744', marginTop: '36px' }}>
-                Que tengas un hermoso y bendecido Oasis. 🕊️
-              </p>
+              {/* REVELACIÓN FINAL CUANDO TERMINA EL JUEGO DE LA FLECHA */}
+              {decisionMade && (
+                <div className="fade-in-section" style={{ width: '100%' }}>
+                  {!dynamic.esIndividual && dynamic.companero ? (
+                    /* 🌿 PANTALLA 5A – SI TIENE COEQUIPER */
+                    <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: 'var(--shadow)', boxSizing: 'border-box', width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+                        <span className="pildora-destacada" style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#f2f9f5', color: '#14532d', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #d1e7dd' }}>
+                          👥 Trabajo en Equipo
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: '15px', color: '#675744', margin: '0 0 10px 0' }}>Tu coequiper en esta misión será:</p>
+                      <h3 style={{ fontSize: '28px', fontWeight: 'bold', color: '#b91c1c', margin: '0 0 24px 0', fontFamily: 'Georgia, serif' }}>❤️ {dynamic.companero}</h3>
+                      
+                      <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center' }}>
+                        <p>Que juntos puedan escuchar, acompañar, sostener y dejarse sorprender por todo lo que Dios tiene preparado para este Oasis.</p>
+                        <p style={{ fontWeight: 'bold', color: '#8a6b2f' }}>Confiamos en ustedes.</p>
+                        <p style={{ textAlign: 'left' }}>Que puedan apoyarse mutuamente, complementarse y recordar siempre que Jesús será el verdadero protagonista de cada encuentro.</p>
+                        <p style={{ fontWeight: 'bold', color: '#20663a', fontSize: '15px', marginTop: '4px' }}>¡Que disfruten esta hermosa misión! ✨</p>
+                      </div>
+                    </div>
+                  ) : (
+                    /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO */
+                    <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: 'var(--shadow)', boxSizing: 'border-box', width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+                        <span className="pildora-destacada" style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8' }}>
+                          🙌 Vas a estar a cargo vos de la dinámica
+                        </span>
+                      </div>
+
+                      <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#2f2417', textAlign: 'center', margin: '0 0 28px 0', fontFamily: 'Georgia, serif' }}>
+                        Esta vez te tocará acompañar solo.
+                      </h3>
+
+                      <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+                        <p>Y quizás al leer esto aparezcan algunas dudas o algunos miedos.</p>
+                        <p style={{ fontStyle: 'italic', color: '#675744', margin: '4px 0' }}>Pero queremos que recuerdes algo:</p>
+                        
+                        <p style={{ fontWeight: 'bold', color: '#901a1e', fontSize: '22px', margin: '6px 0', fontFamily: 'Georgia, serif' }}>
+                          No vas solo.
+                        </p>
+                        
+                        <p style={{ textAlign: 'left' }}>Jesús te acompañará en cada paso y este equipo caminará con vos durante todo el retiro.</p>
+                        <p style={{ textAlign: 'left' }}>Confiamos en vos porque hemos visto todo lo que Dios viene haciendo en tu corazón.</p>
+                        <p style={{ textAlign: 'left' }}>No tenés que tener todas las respuestas. No tenés que transformar la vida de nadie.</p>
+                        
+                        <p style={{ fontWeight: 'bold', color: '#8a6b2f', fontSize: '16px', margin: '4px 0' }}>Esa tarea es de Dios.</p>
+                        <p style={{ textAlign: 'left' }}>Vos solamente dejate usar como instrumento suyo.</p>
+                        
+                        <p style={{ fontWeight: 'bold', letterSpacing: '1px', color: '#20663a', margin: '8px 0', fontSize: '14px' }}>
+                          ESCUCHÁ. ACOMPAÑÁ. AMÁ. Y CONFIÁ.
+                        </p>
+                        <p style={{ fontStyle: 'italic', color: '#8a6b2f', fontWeight: 'bold' }}>
+                          Because mientras vos pongas tu corazón, Jesús se encargará del resto. ❤️
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <p style={{ fontSize: '14px', fontStyle: 'italic', color: '#675744', marginTop: '36px' }}>
+                    Que tengas un hermoso y bendecido Oasis. 🕊️
+                  </p>
+                </div>
+              )}
             </section>
           )}
         </>
