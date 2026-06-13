@@ -50,7 +50,6 @@ export default function RetiroDynamicPage() {
   }, []);
 
   useEffect(() => {
-    // Agregamos la verificación de existencia de dynamic aquí también
     if (currentStep === 2 && dynamic && dynamic.youtubeId && !window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
@@ -70,8 +69,8 @@ export default function RetiroDynamicPage() {
     
     playerRef.current = new window.YT.Player("player-iframe", {
       playerVars: {
-        autoplay: 1,
-        mute: 1, 
+        autoplay: 0,        // 💡 Modificado: Desactivamos el inicio automático que forzaba el silencio
+        mute: 0,            // 💡 Modificado: Desactivamos el silenciador para que se escuche al máximo
         controls: 1,
         modestbranding: 1,
         rel: 0,
@@ -89,9 +88,13 @@ export default function RetiroDynamicPage() {
     });
   };
 
-  // 🔥 MEJORA DE COMPILACIÓN CRÍTICA: Guardia estricto de TypeScript
-  // Si los datos aún no cargaron o el slug es inválido, frena la ejecución aquí.
-  // Esto le asegura a la app que de aquí hacia abajo 'dynamic' JAMÁS será null.
+  // Función interactiva para lanzar el video con audio activado por el usuario
+  const handlePlayVideo = () => {
+    if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+      playerRef.current.playVideo();
+    }
+  };
+
   if (!dynamic) {
     return (
       <div style={{ display: 'flex', minHeight: '100dvh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6f1e8', fontFamily: 'serif', padding: '20px' }}>
@@ -275,16 +278,26 @@ export default function RetiroDynamicPage() {
           {currentStep >= 2 && (
             <section ref={screen2Ref} className="fade-in-section" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
               <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 'bold', color: '#2f2417', letterSpacing: '-0.01em' }}>Un regalo para tu corazón...</h2>
-              <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 28px 0', lineHeight: '1.4' }}>
-                Ponete los auriculares y disfrutá de este mensaje especial. El próximo paso aparecerá automáticamente cuando el video finalice.
+              <p style={{ fontFamily: 'sans-serif', fontSize: '13px', color: '#675744', margin: '0 0 16px 0', lineHeight: '1.4' }}>
+                Subí el volumen, ponete los auriculares y presioná el botón para escuchar este mensaje especial.
               </p>
+
+              {/* Botón premium de Play para forzar la activación de audio nativo en móviles */}
+              {!videoFinished && (
+                <button
+                  onClick={handlePlayVideo}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#2f2417', color: '#ffffff', border: 'none', borderRadius: '999px', fontSize: '13px', fontFamily: 'sans-serif', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '24px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
+                >
+                  🔊 REPRODUCIR CON AUDIO
+                </button>
+              )}
 
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
                 {dynamic.youtubeId ? (
                   <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
                     <iframe
                       id="player-iframe"
-                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1&mute=1`}
+                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=1&showinfo=0&iv_load_policy=3`}
                       style={{ width: '100%', height: '100%', border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
