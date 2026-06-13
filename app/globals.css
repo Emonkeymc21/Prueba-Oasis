@@ -483,3 +483,97 @@ li + li {
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-card,
+.hero-card,
+.invitation-card {
+  animation: fadeInUp 1s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+}
+@keyframes spiritualPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); opacity: 0.95; }
+  100% { transform: scale(1); }
+}
+
+.heart-pulse {
+  display: inline-block;
+  animation: spiritualPulse 2.5s infinite ease-in-out;
+}
+@keyframes prayerGlow {
+  0% { 
+    box-shadow: 0 4px 20px rgba(64, 44, 17, 0.04);
+    border-color: rgba(97, 74, 33, 0.16); 
+  }
+  50% { 
+    box-shadow: 0 4px 25px rgba(138, 107, 47, 0.15);
+    border-color: rgba(138, 107, 47, 0.35);
+  }
+  100% { 
+    box-shadow: 0 4px 20px rgba(64, 44, 17, 0.04);
+    border-color: rgba(97, 74, 33, 0.16); 
+  }
+}
+
+.prayer-box,
+.note-box {
+  animation: prayerGlow 4s infinite ease-in-out;
+}
+@keyframes floatAnimation {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.music-fab {
+  animation: floatAnimation 3.5s infinite ease-in-out;
+}
+
+/* Ajuste para que al pasar el mouse combine la flotación con el hover actual */
+.music-fab:hover {
+  animation-play-state: paused; /* Se detiene la flotación al interactuar */
+  transform: translateY(-2px);
+  background: rgba(47, 36, 23, 0.9);
+}
+@keyframes backgroundBreathing {
+  0% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.65), transparent 28%),
+    linear-gradient(180deg, #efe6d5 0%, #f8f5ef 45%, #f3ede2 100%);
+  background-size: 100% 200%; /* Duplica la altura para permitir el movimiento sutil */
+  animation: backgroundBreathing 20s infinite ease-in-out;
+}
+.primary-link,
+.action-button,
+.access-form button {
+  /* ... tus estilos actuales ... */
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.primary-link:hover,
+.action-button:hover,
+.access-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(126, 97, 40, 0.25);
+}
+
+
+
