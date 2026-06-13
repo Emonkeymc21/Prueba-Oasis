@@ -150,7 +150,7 @@ export type DynamicConfig = {
   nombre: string;
   password: string;
   youtubeId: string;
-  esIndividual: boolean;    // true para Pantalla 5B (Solo), false para Pantalla 5A (Coequiper)
+  esIndividual: boolean;    // true para solos, false para coequipers
   companero?: string;       // Nombre del coequiper si esIndividual es false
 };
 
@@ -158,9 +158,55 @@ export const retiroDynamics: Record<string, DynamicConfig> = {
   'mili-morales': {
     slug: 'mili-morales',
     nombre: 'Mili Morales',
-    password: 'Mili',
-    youtubeId: 'N4rIuvOY9PU', // URL de Short definitiva actualizada
+    password: 'Milim',
+    youtubeId: 'N4rIuvOY9PU',
     esIndividual: true
+  },
+  'nacho-reta': {
+    slug: 'nacho-reta',
+    nombre: 'Ignacio Reta',
+    password: 'Nachor',
+    youtubeId: '178EYiylqGg',
+    esIndividual: true
+  },
+  'santi-farrando': {
+    slug: 'santi-farrando',
+    nombre: 'Santiago Farrando',
+    password: 'Santif',
+    youtubeId: 'w-1Oo-ZuPp0',
+    esIndividual: true
+  },
+  'aru-osterauer': {
+    slug: 'aru-osterauer',
+    nombre: 'Aruma Osterauer',
+    password: 'Arumao',
+    youtubeId: '', // Pega el ID del Short de Aruma acá cuando lo tengas
+    esIndividual: false,
+    companero: 'Sofi Mutis'
+  },
+  'sofi-mutis': {
+    slug: 'sofi-mutis',
+    nombre: 'Sofi Mutis',
+    password: 'Sofim',
+    youtubeId: 'yJYXwHYmfIM',
+    esIndividual: false,
+    companero: 'Aruma Osterauer'
+  },
+  'ivan-lucero': {
+    slug: 'ivan-lucero',
+    nombre: 'Ivan Lucero',
+    password: 'Ivanl',
+    youtubeId: 'B6cmEHApapM',
+    esIndividual: false,
+    companero: 'Agustín Hernández'
+  },
+  'agus-hernandez': {
+    slug: 'agus-hernandez',
+    nombre: 'Agustín Hernández',
+    password: 'Agush',
+    youtubeId: '3cJYyoT3KHE',
+    esIndividual: false,
+    companero: 'Ivan Lucero'
   }
 };
 
@@ -171,5 +217,6 @@ export function getDynamicBySlug(slug: string) {
 export function validateDynamicPassword(slug: string, password: string): boolean {
   const dynamic = retiroDynamics[slug];
   if (!dynamic) return false;
+  // Validación exacta de mayúsculas/minúsculas para las claves personalizadas
   return dynamic.password.trim() === password.trim();
 }

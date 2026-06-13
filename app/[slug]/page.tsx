@@ -40,7 +40,7 @@ export default function RetiroDynamicPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (currentStep === 2 && dynamic && !window.YT) {
+    if (currentStep === 2 && dynamic && dynamic.youtubeId && !window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName("script")[0];
@@ -60,7 +60,7 @@ export default function RetiroDynamicPage() {
   }, [currentStep, dynamic]);
 
   const initPlayer = () => {
-    if (!dynamic || playerRef.current || !window.YT) return;
+    if (!dynamic || !dynamic.youtubeId || playerRef.current || !window.YT) return;
     
     playerRef.current = new window.YT.Player("player-iframe", {
       events: {
@@ -99,6 +99,10 @@ export default function RetiroDynamicPage() {
       setTimeout(() => {
         screen2Ref.current?.scrollIntoView({ behavior: "smooth" });
       }, 250);
+      // Failsafe por si no hay video cargado (ej. Aruma temporalmente)
+      if (!dynamic.youtubeId) {
+        setVideoFinished(true);
+      }
     } else {
       setSlider1X(val);
     }
@@ -163,9 +167,6 @@ export default function RetiroDynamicPage() {
           animation: shimmer 2.5s infinite linear;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-        }
-        .pulse-card {
-          animation: customPulse 2s infinite ease-in-out;
         }
       `}} />
 
@@ -257,14 +258,20 @@ export default function RetiroDynamicPage() {
               </p>
 
               <div style={{ width: '100%', maxWidth: '300px', aspectRatio: '9/16', backgroundColor: '#000000', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 45px rgba(47,36,23,0.18)', marginBottom: '32px', border: '4px solid #ffffff', boxSizing: 'border-box', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
-                  <iframe
-                    id="player-iframe"
-                    src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1`}
-                    style={{ width: '100%', height: '100%', border: 'none' }}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  />
-                </div>
+                {dynamic.youtubeId ? (
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scale(1.28)', transformOrigin: 'center center' }}>
+                    <iframe
+                      id="player-iframe"
+                      src={`https://www.youtube.com/embed/${dynamic.youtubeId}?enablejsapi=1&rel=0&modestbranding=1&controls=0&showinfo=0&iv_load_policy=3&autoplay=1`}
+                      style={{ width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', padding: '20px', color: '#aaa', fontSize: '14px' }}>
+                    [Video en preparación 🎥]
+                  </div>
+                )}
               </div>
 
               {videoFinished && currentStep === 2 && (
@@ -360,29 +367,38 @@ export default function RetiroDynamicPage() {
             </section>
           )}
 
-          {/* 🌿 PANTALLA 5 – REVELACIÓN COMPAÑEROS / SOLO */}
+          {/* 🌿 PANTALLA 5 – REVELACIÓN COEQUIPER / SOLO */}
           {currentStep === 5 && (
             <section ref={screen5Ref} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', boxSizing: 'border-box', maxWidth: '440px', margin: '0 auto', textAlign: 'center', animation: 'fadeIn 0.6s ease-out' }}>
               
               {!dynamic.esIndividual && dynamic.companero ? (
                 /* 🌿 PANTALLA 5A – SI TIENE COEQUIPER */
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '28px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
+                  
+                  {/* Píldora de cabecera para coequiper */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#f2f9f5', color: '#14532d', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #d1e7dd' }}>
+                      👥 Trabajo en Equipo
+                    </span>
+                  </div>
+
                   <p style={{ fontSize: '15px', color: '#675744', margin: '0 0 10px 0' }}>Tu coequiper en esta misión será:</p>
-                  <h3 style={{ fontSize: '28px', fontWeight: 'bold', color: '#b91c1c', margin: '0 0 20px 0' }}>❤️ {dynamic.companero}</h3>
-                  <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
+                  <h3 style={{ fontSize: '28px', fontWeight: 'bold', color: '#b91c1c', margin: '0 0 24px 0', fontFamily: 'Georgia, serif' }}>❤️ {dynamic.companero}</h3>
+                  
+                  <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#3a2e2b', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center' }}>
                     <p>Que juntos puedan escuchar, acompañar, sostener y dejarse sorprender por todo lo que Dios tiene preparado para este Oasis.</p>
-                    <p style={{ fontWeight: 'bold', textAlign: 'center', color: '#8a6b2f' }}>Confiamos en ustedes.</p>
-                    <p>Que puedan apoyarse mutuamente, complementarse y recordar siempre que Jesús será el verdadero protagonista de cada encuentro.</p>
-                    <p style={{ fontWeight: 'bold', textAlign: 'center', color: '#20663a', fontSize: '15px', marginTop: '4px' }}>¡Que disfruten esta hermosa misión! ✨</p>
+                    <p style={{ fontWeight: 'bold', color: '#8a6b2f' }}>Confiamos en ustedes.</p>
+                    <p style={{ textAlign: 'left' }}>Que puedan apoyarse mutuamente, complementarse y recordar siempre que Jesús será el verdadero protagonista de cada encuentro.</p>
+                    <p style={{ fontWeight: 'bold', color: '#20663a', fontSize: '15px', marginTop: '4px' }}>¡Que disfruten esta hermosa misión! ✨</p>
                   </div>
                 </div>
               ) : (
-                /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO (DISEÑO RESALTADO CONFIRMADO POR CAPTURA) */
+                /* 🌿 PANTALLA 5B – SI ACOMPAÑA SOLO */
                 <div style={{ backgroundColor: '#ffffff', borderRadius: '28px', padding: '36px 24px', border: '1px solid rgba(138,107,47,0.1)', boxShadow: '0 10px 30px rgba(64,44,17,0.03)', boxSizing: 'border-box', width: '100%' }}>
                   
                   {/* Píldora de cabecera destacada según image_d2c5bc.png */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                    <span style={{ display: 'inline-block', padding: '8px 20px', backgroundColor: '#fdf6e2', color: '#b0842b', borderRadius: '999px', fontSize: '12px', fontFamily: 'sans-serif', fontWeight: 'bold', border: '1px solid #f1e0b8' }}>
                       🙌 Vas a estar a cargo vos de la dinámica
                     </span>
                   </div>
